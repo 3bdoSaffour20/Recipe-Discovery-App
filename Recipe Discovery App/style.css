@@ -1,0 +1,209 @@
+/* Custom styles that work with Tailwind CSS */
+
+.recipe-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.recipe-card:hover {
+    transform: translateY(-8px);
+}
+
+.loading-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #5D5CDE;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+/* ...existing code... */
+.gradient-bg .hero-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 2.5rem 3rem;
+}
+
+.gradient-bg .hero-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.LogoImage {
+    width: 96px;
+    height: 96px;
+    margin-right: 1rem;
+    border-radius: 12px;
+    object-fit: cover;
+    flex-shrink: 0;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* ensure heading block has no extra top/bottom margin when used inside hero-left */
+.gradient-bg .hero-left h1,
+.gradient-bg .hero-left p {
+    margin: 0;
+}
+/* ...existing code... */
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-overlay {
+    backdrop-filter: blur(8px);
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from { transform: scale(0.9) translateY(-50px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.gradient-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+}
+
+/* Line clamp utility for recipe cards */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .recipe-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+}
+
+/* Custom scrollbar styles */
+.overflow-y-auto::-webkit-scrollbar {
+    width: 8px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Dark mode scrollbar */
+.dark .overflow-y-auto::-webkit-scrollbar-track {
+    background: #374151;
+}
+
+.dark .overflow-y-auto::-webkit-scrollbar-thumb {
+    background: #6b7280;
+}
+
+.dark .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Focus states for better accessibility */
+.recipe-suggestion:focus {
+    outline: 2px solid #5D5CDE;
+    outline-offset: 2px;
+}
+
+button:focus {
+    outline: 2px solid #5D5CDE;
+    outline-offset: 2px;
+}
+
+/* Enhanced hover effects */
+.recipe-suggestion:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Loading state improvements */
+.loading-spinner {
+    box-shadow: 0 0 0 4px rgba(93, 92, 222, 0.1);
+}
+
+/* Modal improvements */
+.modal-overlay {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Recipe card image overlay effects */
+.recipe-card img {
+    transition: transform 0.3s ease;
+}
+
+.recipe-card:hover img {
+    transform: scale(1.05);
+}
+
+/* Button hover enhancements */
+.recipe-card button {
+    transition: all 0.2s ease;
+}
+
+.recipe-card button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(93, 92, 222, 0.3);
+}
+
+/* Improved spacing for mobile */
+@media (max-width: 768px) {
+    .max-w-7xl {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    .py-8 {
+        padding-top: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+}
+
+/* Enhanced focus indicators */
+input:focus, button:focus {
+    box-shadow: 0 0 0 3px rgba(93, 92, 222, 0.1);
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
