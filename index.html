@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Recipe Discovery App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" href="Discover Recipes1.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="Discover Recipes1.png">
+    <!-- <link rel="icon" type="image/png" sizes="16x16" href="Discover Recipes1.png"> -->
+    <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        'primary-hover': '#4F4ECD',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen transition-colors duration-300">
+    <!-- Header -->
+    <header class="gradient-bg shadow-lg">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-6">
+                <a href="#/" class="hero-left flex items-center gap-4 text-center sm:text-left" aria-label="Recipe Discovery home">
+                    <img src="Discover Recipes.png" alt="Recipe Discovery Logo" class="LogoImage" style="width:80px;height:80px;object-fit:cover;border-radius:12px;">
+                    <div>
+                        <h1 class="text-3xl sm:text-4xl font-bold text-white">Recipe Discovery</h1>
+                        <p class="text-blue-100 mt-1">Find delicious recipes from around the world</p>
+                    </div>
+                </a>
+                <form class="w-full sm:w-auto flex" id="searchForm" role="search">
+                    <input
+                        type="text"
+                        placeholder="Search for recipes..."
+                        aria-label="Search for recipes"
+                        class="flex-grow sm:w-80 min-w-0 px-4 py-3 text-base rounded-l-lg border-0 focus:ring-4 focus:ring-blue-300 focus:outline-none bg-white text-gray-900 placeholder-gray-500"
+                        id="searchInput"
+                    >
+                    <button
+                        type="submit"
+                        class="px-6 py-3 bg-primary hover:bg-primary-hover text-white font-semibold rounded-r-lg transition-colors duration-200 focus:ring-4 focus:ring-blue-300 focus:outline-none"
+                    >
+                        Search
+                    </button>
+                </form>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Routed page content is rendered here by app.js -->
+    <main id="pageRoot" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-[60vh]"></main>
+
+    <!-- Recipe Modal -->
+    <div id="recipeModal" class="hidden fixed inset-0 z-50 modal-overlay">
+        <div class="flex items-center justify-center min-h-screen px-4 py-8">
+            <div class="modal-content bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+                <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
+                    <h3 id="modalTitle" class="text-2xl font-bold"></h3>
+                    <button type="button" onclick="RD.closeModal()" aria-label="Close recipe" class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="overflow-y-auto max-h-[calc(90vh-80px)]">
+                    <div id="modalContent" class="p-6"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-gray-900 text-white pt-16 pb-8 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <!-- Brand Column -->
+                <div class="col-span-1 md:col-span-1">
+                    <a href="#/" class="flex items-center gap-3 mb-6">
+                        <img src="Discover Recipes.png" alt="Recipe Discovery Logo" class="w-12 h-12 rounded-lg object-cover">
+                        <h2 class="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">Recipe Discovery</h2>
+                    </a>
+                    <p class="text-gray-400 leading-relaxed mb-6">
+                        Find delicious recipes from around the world and discover your next favorite meal with our curated collection.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" aria-label="Facebook" class="p-2 bg-gray-800 rounded-full hover:bg-purple-600 transition-colors">
+                            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" class="w-5 h-5">
+                        </a>
+                        <a href="#" aria-label="Instagram" class="p-2 bg-gray-800 rounded-full hover:bg-purple-600 transition-colors">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" class="w-5 h-5">
+                        </a>
+                        <a href="#" aria-label="Twitter" class="p-2 bg-gray-800 rounded-full hover:bg-purple-600 transition-colors">
+                            <img src="https://cdn-icons-png.flaticon.com/512/3256/3256013.png" alt="Twitter" class="w-5 h-5">
+                        </a>
+                        <a href="#" aria-label="YouTube" class="p-2 bg-gray-800 rounded-full hover:bg-purple-600 transition-colors">
+                            <img src="https://cdn-icons-png.flaticon.com/512/1384/1384060.png" alt="YouTube" class="w-5 h-5">
+                        </a>
+                    </div>
+                </div>
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-lg font-bold mb-6">Quick Links</h4>
+                    <ul class="space-y-4 text-gray-400">
+                        <li><a href="#/" data-nav="/" class="footer-link hover:text-purple-400 transition-colors">Home</a></li>
+                        <li><a href="#/recipes" data-nav="/recipes" class="footer-link hover:text-purple-400 transition-colors">Recipes</a></li>
+                        <li><a href="#/categories" data-nav="/categories" class="footer-link hover:text-purple-400 transition-colors">Categories</a></li>
+                        <li><a href="#/about" data-nav="/about" class="footer-link hover:text-purple-400 transition-colors">About</a></li>
+                    </ul>
+                </div>
+                <!-- Categories -->
+                <div>
+                    <h4 class="text-lg font-bold mb-6">Categories</h4>
+                    <ul class="space-y-4 text-gray-400">
+                        <li>
+                            <a href="#/recipes/category/Beef" data-nav="/recipes/category/Beef" class="footer-link hover:text-purple-400 transition-colors">
+                                <img src="Icons/beef.png" alt="" aria-hidden="true" class="footer-link-icon">Beef
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#/recipes/category/Chicken" data-nav="/recipes/category/Chicken" class="footer-link hover:text-purple-400 transition-colors">
+                                <img src="Icons/chicken.png" alt="" aria-hidden="true" class="footer-link-icon">Chicken
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#/recipes/category/Pasta" data-nav="/recipes/category/Pasta" class="footer-link hover:text-purple-400 transition-colors">
+                                <img src="Icons/pasta.png" alt="" aria-hidden="true" class="footer-link-icon">Pasta
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#/recipes/category/Cake" data-nav="/recipes/category/Cake" class="footer-link hover:text-purple-400 transition-colors">
+                                <img src="Icons/cake.png" alt="" aria-hidden="true" class="footer-link-icon">Cake
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Newsletter/Contact -->
+                <div>
+                    <h4 class="text-lg font-bold mb-6">Contact Us</h4>
+                    <p class="text-gray-400 mb-4">Have a recipe to share? Reach out to us!</p>
+                    <a href="mailto:contact@recipediscovery.com" class="text-purple-400 hover:underline font-medium">contact@recipediscovery.com</a>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-gray-800 text-center text-gray-500 text-sm">
+                <p>&copy; 2026 Recipe Discovery. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Services -->
+    <script src="utils/dom.js"></script>
+    <script src="services/mealDbApi.js"></script>
+
+    <!-- Shared components -->
+    <script src="components/icons.js"></script>
+    <script src="components/breadcrumbs.js"></script>
+    <script src="components/states.js"></script>
+    <script src="components/recipeCard.js"></script>
+    <script src="components/categoryCard.js"></script>
+    <script src="components/recipeDetail.js"></script>
+    <script src="components/recipeModal.js"></script>
+    <script src="components/recipeResults.js"></script>
+
+    <!-- Routing -->
+    <script src="router.js"></script>
+
+    <!-- Pages -->
+    <script src="pages/home.js"></script>
+    <script src="pages/recipes.js"></script>
+    <script src="pages/recipeResults.js"></script>
+    <script src="pages/categories.js"></script>
+    <script src="pages/about.js"></script>
+    <script src="pages/recipeDetails.js"></script>
+    <script src="pages/notFound.js"></script>
+
+    <!-- App controller + entry point -->
+    <script src="app.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
