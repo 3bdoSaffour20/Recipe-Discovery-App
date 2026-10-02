@@ -1,123 +1,89 @@
-# Recipe Discovery App
+# Recipe Discovery
 
-A static, dependency-free web app for exploring and discovering recipes from around the world, powered by the free [TheMealDB](https://www.themealdb.com/api.php) API.
+A responsive recipe platform built with React and Vite, powered by the live
+[TheMealDB](https://www.themealdb.com/) API. Search thousands of recipes,
+filter by category or ingredient, and save favorites to your device.
 
-## Features
-
-- **Recipe search** - search by dish name, from the header or the Recipes page (Enter key works).
-- **Category browsing** - categories are loaded dynamically from the API, never hard-coded.
-- **Main ingredient filter** - filter meals by their main ingredient, with suggestions loaded from the API.
-- **Recipe details** - quick-view modal on card click, plus a dedicated details page with breadcrumbs.
-- **Multi-page navigation** - a lightweight hash router with breadcrumbs, working back/forward buttons and an active-page indicator in the footer.
-- **Responsive** - desktop, tablet and mobile layouts with no horizontal scrolling.
-- **Resilient states** - loading, empty and error states everywhere, with automatic retry on transient network failures.
-
-## Technologies Used
-
-- Frontend: HTML, CSS, JavaScript (vanilla, no build step)
-- Styling: Tailwind CSS (CDN) + `style.css` custom theme
-- Routing: `router.js` (lightweight hash router, ~120 lines)
-- API: TheMealDB (`https://www.themealdb.com/api/json/v1/1/`)
-
-## Running the project
-
-No install or build step is required. Either open `index.html` directly, or serve the folder:
+## Getting started
 
 ```bash
-# any static server works, e.g.:
-python -m http.server 8000
-npx serve .
+npm install
+npm run dev      # development server
+npm run build    # production build into dist/
+npm run preview  # serve the production build
 ```
 
-Then visit `http://localhost:8000`.
+## Scripts
 
-## Project structure
+| Script                    | What it does                                                          |
+| ------------------------- | --------------------------------------------------------------------- |
+| `npm run dev`             | Vite dev server with hot reload                                       |
+| `npm run build`           | Production build                                                      |
+| `npm run preview`         | Serves `dist/` for local verification                                 |
+| `npm run optimize:assets` | Re-generates the responsive image variants from `Images/` and `Icons/` |
+| `npm run smoke:api`       | Runs the pure helpers and the live API through 27 checks             |
+| `npm run check:classnames`| Flags `className`s in JSX with no matching CSS rule                   |
+| `npm run check:legacy`   | Confirms nothing was lost when the old app was moved to `legacy/`      |
+| `npm run verify`          | Drives the built app in Chrome: routes, overflow, touch targets, a11y |
+| `npm run audit:design`    | Asserts the rendered design against the brief: gradient, hero, tiles |
+| `npm run screenshots`     | Captures reference screenshots to `screenshots/`                      |
+
+`verify` and `audit:design` expect a server on `http://localhost:4173`, so run
+`npm run build && npm run preview` first. Set `BASE_URL` to point them
+somewhere else, and `CHROME_PATH` if Chrome or Edge is not in a standard
+location.
+
+## How it fits together
 
 ```
-.
-├── index.html            # App shell: header, page mount point, modal, footer
-├── style.css             # Custom theme, animations and responsive rules
-├── script.js             # Entry point: dark mode, header search, router bootstrap
-├── app.js                # Route -> page controller, titles, active-link state
-├── router.js             # Lightweight hash router
-│
-├── services/
-│   └── mealDbApi.js      # All TheMealDB requests + centralised base URL
-│
-├── utils/
-│   └── dom.js            # escaping/formatting helpers + in-memory meal store
-│
-├── components/           # Shared, reused UI
-│   ├── icons.js          # Inline SVG icon set
-│   ├── breadcrumbs.js    # Breadcrumb / page header
-│   ├── states.js         # Loading, empty and error blocks
-│   ├── recipeCard.js     # The single recipe card used by every grid
-│   ├── categoryCard.js   # Category card
-│   ├── recipeDetail.js   # Ingredients + instructions markup
-│   ├── recipeResults.js  # Reusable results grid with async states
-│   └── recipeModal.js    # Quick-view modal
-│
-├── pages/
-│   ├── home.js
-│   ├── recipes.js
-│   ├── recipeResults.js  # Handles search / category / ingredient results
-│   ├── categories.js
-│   ├── about.js
-│   ├── recipeDetails.js
-│   └── notFound.js
-│
-├── Icons/                # beef, chicken, pasta, cake icons
-├── Images/               # Category and hero backgrounds
-└── Discover Recipes.png  # Logo
+src/
+  components/   presentation: navbar, cards, search, shared states
+  hooks/        data fetching, favorites, media queries, focus and scroll
+  pages/        one module per route, all code-split except Home
+  services/     the only place that talks to TheMealDB
+  styles/       plain CSS, mobile-first, one file per concern
+  utils/        pure helpers: ingredients, instructions, URLs, text
 ```
 
-## Routes
+### Notes on a few decisions
 
-Routing uses the URL hash, so the app runs from any path without server rewrite rules.
+**One place for the network.** `src/services/mealApi.js` owns every request. It
+caches responses for five minutes, collapses duplicate concurrent requests into
+one, and retries transient failures.
 
-| Route                        | Page                                          |
-| ---------------------------- | --------------------------------------------- |
-| `#/`                         | Home                                          |
-| `#/recipes`                  | Explore Recipes (search + ingredient filter)  |
-| `#/recipes/search/<query>`   | Results for a recipe name                     |
-| `#/recipes/category/<name>`  | Results for a category                        |
-| `#/recipes/ingredient/<name>`| Results for a main ingredient                 |
-| `#/recipe/<id>`              | Recipe details                                |
-| `#/categories`               | Categories (loaded from the API)              |
-| `#/about`                    | About Recipe Discovery                        |
-| anything else                | 404 page                                      |
+**The API returns two different shapes.** A category listing returns a summary
+with a thumbnail and no ingredients; only a lookup by id returns the full
+record. `getMealDetails` upgrades a summary automatically, otherwise detail
+pages render empty until a refresh.
 
-## API layer
+**`latest.php` is anonymous.** TheMealDB lists it as a random endpoint, but it
+returns the same placeholder record every time. `getRandomMeal` falls back to a
+real search instead, so the button always produces a different dish.
 
-All network calls live in `services/mealDbApi.js`, so components never call `fetch` directly.
+**Instructions are structured, not prose.** Most records separate steps with
+line breaks rather than numbers, so `splitInstructions` treats a newline as a
+step boundary and only adds numbering when the source text already had markers.
+For the same reason `normalizeMeal` keeps newlines in `strInstructions`; the UI
+splits the text, rather than storing it as one paragraph.
 
-```js
-RD.api.getCategories();                 // categories.php
-RD.api.searchMeals('chicken');          // search.php?s=chicken
-RD.api.getMealsByCategory('Beef');      // filter.php?c=Beef
-RD.api.getMealsByIngredient('chicken_breast'); // filter.php?i=chicken_breast
-RD.api.getMealDetails('52772');         // lookup.php?i=52772
-RD.api.getLatestMeals();                // latest.php
-RD.api.getFeaturedMeals(24);            // default listing for /recipes
-RD.api.listIngredients();               // list.php?i=list
-```
+**No CSS framework.** Styles are plain CSS driven by custom properties in
+`src/styles/tokens.css`, which keeps the dark navy and purple palette in one
+place and the initial CSS small.
 
-Notes on the data source:
+## Accessibility
 
-- TheMealDB has no `Cake` category - cakes are published under `Dessert`. The footer's friendly "Cake" link is mapped to the real category in `pages/recipeResults.js` (`CATEGORY_ALIASES`), so the page title stays "Cake Recipes" while the API request is `filter.php?c=Dessert`.
-- `latest.php` returns a Patreon placeholder object for anonymous callers, so `getFeaturedMeals()` validates that response and falls back to a broad `search.php?f=` listing.
-- Ingredient filtering matches TheMealDB's *main* ingredient, so use exact names from the ingredient list (`chicken_breast`, `spaghetti`, `brown_rice`) - the Recipes page provides these as autocomplete suggestions.
+Semantic landmarks and a skip link, one `h1` per page, visible focus rings,
+44px touch targets on phones, a focus-trapped mobile drawer that restores focus
+when it closes, `prefers-reduced-motion` support, and alt text on every image.
+Loading, empty and error states are announced rather than shown silently.
 
-## Extending the app
+## Assets
 
-- Add a page: create `pages/<name>.js` exposing `RD.pages.<name>.render(container, params, routeName)`, register it in the `PAGE_FOR_ROUTE` map in `app.js`, and add a script tag in `index.html`.
-- Add a route: extend the `routes` array in `router.js`.
-- Add an API call: add a function to `services/mealDbApi.js` and reuse it in the `load` callback of `RD.components.recipeResults.mount()`.
+`Images/` and `Icons/` hold the original artwork. `npm run optimize:assets`
+renders responsive WebP/JPEG pairs into `src/assets/*/generated/`, which
+`src/assets/media.js` exposes to the components. Re-run it after changing a
+source image.
 
-## Contribution
+## Legacy
 
-Contributions are welcome! If you have suggestions or improvements, feel free to open an issue or submit a pull request.
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
+The previous static implementation is preserved in `legacy/`, unmodified.

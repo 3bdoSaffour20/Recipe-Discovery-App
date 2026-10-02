@@ -1,0 +1,1416 @@
+/* ==========================================================================
+   Reusable components
+   ========================================================================== */
+
+/* Buttons -------------------------------------------------------------
+   Every variant clears --touch-target (44px) in both axes.
+   ------------------------------------------------------------------------ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: var(--space-3) var(--space-6);
+  border: 1px solid transparent;
+  border-radius: var(--border-radius-sm);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    transform var(--transition-fast),
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+/* Pointer-only hover: on touch devices this never fires, so the active
+   state below carries the feedback instead. */
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.985);
+}
+
+.btn__icon {
+  width: 1.125em;
+  height: 1.125em;
+  flex-shrink: 0;
+}
+
+.btn--primary {
+  background: var(--primary-color);
+  color: var(--text-on-accent);
+  box-shadow: var(--box-shadow-accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn--primary:hover {
+    background: var(--primary-color-strong);
+    box-shadow: 0 16px 34px -12px rgba(168, 85, 247, 0.7);
+  }
+}
+
+.btn--accent {
+  background: var(--gradient-accent);
+  color: var(--text-on-accent);
+  box-shadow: var(--box-shadow-accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn--accent:hover {
+    box-shadow: 0 16px 34px -12px rgba(93, 92, 222, 0.75);
+  }
+}
+
+.btn--secondary {
+  background: var(--surface-color-raised);
+  border-color: var(--border-color-strong);
+  color: var(--text-primary);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn--secondary:hover {
+    background: var(--card-background-hover);
+    border-color: var(--accent-color);
+  }
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  box-shadow: inset 0 0 0 1px var(--border-color);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn--ghost:hover {
+    color: var(--text-primary);
+    box-shadow: inset 0 0 0 1px var(--border-color-strong);
+  }
+}
+
+/* Icon-only control inside a card (the favourite heart). */
+.btn--icon {
+  min-width: var(--touch-target);
+  padding: var(--space-2);
+  border-radius: var(--border-radius-pill);
+  background: rgba(2, 6, 23, 0.72);
+  color: var(--text-primary);
+  backdrop-filter: blur(6px);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn--icon:hover {
+    background: var(--accent-color);
+  }
+}
+
+.btn--lg {
+  min-height: 3.25rem;
+  padding-inline: var(--space-8);
+  font-size: 1rem;
+}
+
+/* Link that reads as a button but behaves like a link. */
+.link-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  max-width: 100%;
+  padding-inline: var(--space-2);
+  /* An email address is one unbroken token. Without this it widens its grid
+     column instead of wrapping, which pushes the page sideways at the exact
+     width where the footer collapses from four columns to a tight row. */
+  overflow-wrap: anywhere;
+  color: var(--accent-soft);
+  font-weight: 600;
+  transition: color var(--transition-fast), gap var(--transition-fast);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .link-button:hover {
+    color: var(--primary-color-soft);
+    gap: var(--space-3);
+  }
+}
+
+/* Cards --------------------------------------------------------------- */
+.card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow);
+  /* Consistent card heights in a grid row. */
+  height: 100%;
+  transition:
+    transform var(--transition-base),
+    border-color var(--transition-base),
+    box-shadow var(--transition-base),
+    background-color var(--transition-base);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card--interactive:hover {
+    transform: translateY(-6px);
+    border-color: var(--border-color-strong);
+    background: var(--card-background-hover);
+    box-shadow: var(--box-shadow-md);
+  }
+
+  .card--interactive:hover .card__image {
+    transform: scale(1.07);
+  }
+}
+
+/* Touch devices get a pressed state instead of a hover state. */
+.card--interactive:active {
+  transform: scale(0.99);
+}
+
+.card__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--surface-color-raised);
+  flex-shrink: 0;
+}
+
+.card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.card__badge {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--border-radius-pill);
+  background: rgba(2, 6, 23, 0.78);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+}
+
+.card__favourite {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  /* `.card__link::after` stretches over the whole card to make it clickable.
+     Without this the overlay would swallow taps on the favourite button. */
+  z-index: 1;
+}
+
+.card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  flex: 1;
+}
+
+@media (min-width: 768px) {
+  .card__body {
+    padding: var(--space-5);
+  }
+}
+
+.card__title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  /* Two-line clamp keeps every card in a row the same height. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+}
+
+.card__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.card__meta-item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.card__meta-icon {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  color: var(--accent-soft);
+}
+
+/* Country flags ------------------------------------------------------- */
+
+/*
+ * The flag is an SVG from the `flag-icons` package, sized here and nowhere
+ * else. Deliberately a little smaller than the recipe title: the country is
+ * supporting information, not the dish.
+ *
+ * `.fi` sets `width: 1.33em` and `line-height: 1em`; both are overridden here
+ * because the box has to sit on the text baseline predictably at any font size.
+ * This file is imported after `flag-icons`, so equal-specificity rules here win.
+ */
+.country-flag {
+  display: inline-block;
+  width: 1.2rem;
+  height: 0.9rem;
+  flex-shrink: 0;
+  /* `cover` rather than the library's `contain`: the artwork is 4:3 and the
+   * box is within a few percent of it, so `contain` would letterbox and leave
+   * the card background showing at the edge. */
+  background-size: cover;
+  background-position: 50% 50%;
+  border-radius: 2px;
+  /* A hairline edge, so a light flag (Japan, Poland) still reads as an object
+   * against the dark card. A spread shadow rather than a border, so it adds no
+   * height to the line. */
+  box-shadow: 0 0 0 1px var(--border-color-strong);
+  /* No `margin-right`: `.card__meta-item`, `.tag` and `.detail__meta-item`
+   * already space their children with `gap`, so a margin would double the
+   * breathing room next to the category icon. */
+}
+
+/*
+ * `.fi:before` carries a letter as a text fallback for when the image cannot
+ * load — which on Windows is how an emoji-flag implementation ends up reading
+ * "ES Spanish". Nothing may print text inside the flag box, so the pseudo
+ * element is removed outright rather than left to fail visibly.
+ */
+.fi.country-flag::before {
+  content: none;
+}
+
+/*
+ * `.card__meta-item span` clips and ellipsises its text, a rule the flag would
+ * otherwise inherit and be cut away on a narrow card. The country name is the
+ * part allowed to shrink, so the flag opts out. The extra `.card__meta-item`
+ * is what outranks that rule.
+ */
+.card__meta-item .country-flag,
+.card__meta-item .country-placeholder,
+.detail__meta-item .country-flag,
+.detail__meta-item .country-placeholder {
+  overflow: visible;
+  text-overflow: clip;
+}
+
+/*
+ * Shown in place of a flag when TheMealDB names no country, or names one with
+ * no national flag to draw. Sized and coloured to occupy the same slot as a
+ * flag so the row does not shift when one recipe has a cuisine and the next
+ * does not.
+ */
+.country-placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.2rem;
+  height: 0.9rem;
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  line-height: 1;
+  color: var(--text-muted);
+  border: 1px dashed var(--border-color-strong);
+  border-radius: 2px;
+}
+
+/*
+ * The cuisine name, the only part allowed to give way on a narrow card: the
+ * flag stays whole and the text ellipsises.
+ */
+.recipe-area-name {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Small phones: the flag steps down with the surrounding meta text. */
+@media (max-width: 480px) {
+  .country-flag,
+  .country-placeholder {
+    width: 1.05rem;
+    height: 0.8rem;
+  }
+}
+
+.card__footer {
+  padding: 0 var(--space-4) var(--space-4);
+  margin-top: auto;
+}
+
+@media (min-width: 768px) {
+  .card__footer {
+    padding: 0 var(--space-5) var(--space-5);
+  }
+}
+
+.card__footer .btn {
+  width: 100%;
+}
+
+/* Card renders as a single link; the inner button is a sibling anchor so
+   nested interactive elements never occur. */
+.card__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.card {
+  position: relative;
+}
+
+/* Category card ------------------------------------------------------- */
+.category-card__image {
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .card--interactive:hover .category-card__image {
+    transform: scale(1.06);
+  }
+}
+
+.category-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  flex: 1;
+}
+
+.category-card__title {
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+.category-card__description {
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  /* Keeps the card heights in a row aligned. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.category-card__count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: auto;
+  padding-top: var(--space-3);
+  color: var(--accent-soft);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+/* Hero ---------------------------------------------------------------- */
+.hero {
+  position: relative;
+  display: grid;
+  place-items: center;
+  /* Responsive height: fills a comfortable slice of the viewport on phones,
+     a fixed generous size on desktop. `dvh` tracks mobile browser chrome. */
+  min-height: clamp(30rem, 78svh, 44rem);
+  padding: var(--space-12) var(--space-5);
+  margin-bottom: var(--space-8);
+  overflow: hidden;
+  border-radius: var(--border-radius-xl);
+  isolation: isolate;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .hero {
+    padding: var(--space-20) var(--space-8);
+    margin-bottom: var(--space-12);
+  }
+}
+
+.hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.hero__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Keeps the food photography readable once text sits on top. */
+  object-position: center;
+}
+
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--gradient-hero-scrim);
+}
+
+.hero__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  max-width: 52rem;
+}
+
+.hero__title {
+  font-size: clamp(2.125rem, 1.25rem + 5vw, 4.5rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* Safari needs the WebKit prefix to paint clipped gradient text. */
+  -webkit-text-fill-color: transparent;
+}
+
+.hero__text {
+  max-width: 42ch;
+  color: #e2e8f0;
+  font-size: clamp(1rem, 0.95rem + 0.5vw, 1.3125rem);
+  line-height: 1.65;
+}
+
+.hero__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 22rem;
+}
+
+@media (min-width: 480px) {
+  .hero__actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: none;
+  }
+}
+
+.hero__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: var(--space-4) var(--space-2);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: rgba(30, 41, 59, 0.72);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 700;
+  backdrop-filter: blur(8px);
+  transition:
+    transform var(--transition-base),
+    border-color var(--transition-base),
+    background-color var(--transition-base);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hero__tile:hover {
+    transform: translateY(-6px);
+    border-color: var(--accent-color);
+    background: rgba(93, 92, 222, 0.32);
+  }
+}
+
+.hero__tile:active {
+  transform: scale(0.97);
+}
+
+.hero__tile-icon {
+  width: clamp(2.25rem, 1.5rem + 3vw, 3.25rem);
+  height: auto;
+  object-fit: contain;
+}
+
+/* Quick action row below the hero (the reference "bottom navigation"). */
+.action-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-8);
+}
+
+@media (min-width: 480px) {
+  .action-row {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 480px) {
+  .action-row .btn {
+    flex: 1 1 12rem;
+  }
+}
+
+/* Forms --------------------------------------------------------------- */
+.field__label {
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.input,
+.select {
+  width: 100%;
+  min-height: var(--touch-target);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  /* 16px minimum prevents iOS Safari zoom-on-focus. */
+  font-size: 1rem;
+  transition:
+    border-color var(--transition-fast),
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input:hover,
+.select:hover {
+  border-color: var(--border-color-strong);
+}
+
+.input:focus-visible,
+.select:focus-visible {
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.28);
+  outline: none;
+}
+
+.select {
+  appearance: none;
+  padding-right: var(--space-10);
+  /* Inline chevron keeps the control theme-correct without a background
+     image request. */
+  background-image: linear-gradient(45deg, transparent 50%, var(--text-secondary) 50%),
+    linear-gradient(135deg, var(--text-secondary) 50%, transparent 50%);
+  background-position:
+    calc(100% - 1.25rem) calc(50% + 2px),
+    calc(100% - 0.875rem) calc(50% + 2px);
+  background-size:
+    6px 6px,
+    6px 6px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+
+/* Search bar: input and button share a row on wide screens and stack on
+   narrow ones so neither target drops below 44px. */
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+@media (min-width: 480px) {
+  .search-form {
+    flex-direction: row;
+    gap: var(--space-2);
+  }
+}
+
+.search-form__input-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.search-form__icon {
+  position: absolute;
+  top: 50%;
+  left: var(--space-4);
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--text-muted);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.search-form__input {
+  padding-left: 2.75rem;
+  background: var(--background-color-deep);
+}
+
+.search-form__clear {
+  position: absolute;
+  top: 50%;
+  right: var(--space-2);
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--border-radius-pill);
+  color: var(--text-muted);
+  transform: translateY(-50%);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.search-form__clear:hover {
+  color: var(--text-primary);
+  background: var(--surface-color-raised);
+}
+
+/* At 2rem the clear control looks proportionate beside the text but is well
+   under the 44px touch minimum, so grow it wherever the input is used by
+   touch. It stays centred on the input, which is taller than the button. */
+@media (pointer: coarse), (max-width: 480px) {
+  .search-form__clear {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+}
+
+.search-form__submit {
+  flex-shrink: 0;
+}
+
+@media (min-width: 480px) {
+  .search-form__submit {
+    width: auto;
+  }
+}
+
+/* Navbar -------------------------------------------------------------- */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--gradient-brand);
+  box-shadow: var(--box-shadow);
+  /* `safe-area` keeps content clear of the notch in landscape on iOS. */
+  padding-top: env(safe-area-inset-top);
+}
+
+.navbar__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--header-height-mobile);
+}
+
+.navbar__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-2) 0;
+  border-radius: var(--border-radius-sm);
+}
+
+.navbar__logo {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: var(--border-radius-xs);
+  object-fit: cover;
+}
+
+@media (min-width: 768px) {
+  .navbar__logo {
+    width: 3rem;
+    height: 3rem;
+  }
+}
+
+.navbar__brand-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.navbar__title {
+  font-size: clamp(1.0625rem, 0.95rem + 0.6vw, 1.5rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.navbar__tagline {
+  color: #dbeafe;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  /* Hidden on the smallest screens so the header stays one line tall. */
+  display: none;
+}
+
+@media (min-width: 560px) {
+  .navbar__tagline {
+    display: block;
+  }
+}
+
+.navbar__desktop {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .navbar__desktop {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    flex: 1;
+    justify-content: flex-end;
+  }
+}
+
+.navbar__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.navbar__link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--border-radius-sm);
+  color: #e0e7ff;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .navbar__link:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+  }
+}
+
+.navbar__link.is-active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.navbar__search {
+  width: min(22rem, 34vw);
+}
+
+/* Hamburger ------------------------------------------------------------ */
+.navbar__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  flex-shrink: 0;
+  border-radius: var(--border-radius-sm);
+  color: #fff;
+  transition: background-color var(--transition-fast);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .navbar__toggle:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+}
+
+@media (min-width: 1024px) {
+  .navbar__toggle {
+    display: none;
+  }
+}
+
+.navbar__toggle-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.navbar__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: var(--overlay-color);
+  backdrop-filter: blur(3px);
+  animation: fade-in var(--transition-base) both;
+}
+
+/* Mobile drawer -------------------------------------------------------- */
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 95;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: min(20rem, 84vw);
+  padding: calc(var(--header-height-mobile) + var(--space-4)) var(--space-5) var(--space-8);
+  /* Leaves room for `safe-area-inset-right` on notched devices. */
+  padding-right: calc(var(--space-5) + env(safe-area-inset-right));
+  overflow-y: auto;
+  background: var(--background-color-deep);
+  border-left: 1px solid var(--border-color);
+  box-shadow: var(--box-shadow-lg);
+  animation: drawer-in var(--transition-base) var(--ease-out-soft) both;
+}
+
+.mobile-menu__links {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.mobile-menu__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 3rem;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .mobile-menu__link:hover {
+    background: var(--surface-color);
+    color: var(--text-primary);
+  }
+}
+
+.mobile-menu__link.is-active {
+  background: var(--surface-color);
+  color: var(--text-primary);
+}
+
+.mobile-menu__link-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--accent-soft);
+  flex-shrink: 0;
+}
+
+.mobile-menu__divider {
+  height: 1px;
+  background: var(--border-color);
+  margin-block: var(--space-2);
+}
+
+/* Search inside the drawer: the header search is hidden below 1024px, so this
+   is the only way to search on a phone. The form stacks its input and button
+   so both keep a full-width touch target. */
+.mobile-menu__search .search-form {
+  width: 100%;
+}
+
+.mobile-menu__search .search-form__input,
+.mobile-menu__search .search-form__submit {
+  width: 100%;
+}
+
+.mobile-menu__footer {
+  margin-top: auto;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+/* Footer -------------------------------------------------------------- */
+.footer {
+  margin-top: auto;
+  padding-block: var(--space-12) var(--space-6);
+  background: var(--background-color-deep);
+  border-top: 1px solid var(--border-color);
+}
+
+.footer__grid {
+  display: grid;
+  gap: var(--space-8);
+  grid-template-columns: minmax(0, 1fr);
+  margin-bottom: var(--space-10);
+}
+
+@media (min-width: 640px) {
+  .footer__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-10) var(--space-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .footer__grid {
+    grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr));
+  }
+}
+
+.footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.footer__brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  align-self: flex-start;
+  border-radius: var(--border-radius-sm);
+}
+
+.footer__logo {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border-radius: var(--border-radius-xs);
+  object-fit: cover;
+}
+
+.footer__brand-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.footer__about {
+  max-width: 40ch;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+
+.footer__heading {
+  margin-bottom: var(--space-4);
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.footer__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.footer__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  /* Touch target height even though the label is small. */
+  min-height: 2.75rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  transition: color var(--transition-fast), gap var(--transition-fast);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .footer__link:hover {
+    color: var(--accent-soft);
+    gap: var(--space-4);
+  }
+}
+
+.footer__link-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.footer__link:hover .footer__link-icon {
+  color: var(--accent-soft);
+}
+
+.footer__socials {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.footer__social {
+  display: grid;
+  place-items: center;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border-radius: var(--border-radius-pill);
+  background: var(--surface-color);
+  color: var(--text-secondary);
+  transition: background-color var(--transition-fast), color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .footer__social:hover {
+    background: var(--primary-color);
+    color: #fff;
+    transform: translateY(-3px);
+  }
+}
+
+.footer__social-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.footer__bottom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-items: center;
+  padding-top: var(--space-6);
+  border-top: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  text-align: center;
+}
+
+@media (min-width: 640px) {
+  .footer__bottom {
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
+  }
+}
+
+.footer__credit a {
+  color: var(--accent-soft);
+  font-weight: 600;
+}
+
+/* States: loading / error / empty ------------------------------------ */
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-5);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  background: rgba(30, 41, 59, 0.4);
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .state {
+    padding: var(--space-16) var(--space-8);
+  }
+}
+
+.state__icon {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: var(--border-radius-pill);
+  background: var(--surface-color);
+  color: var(--accent-soft);
+}
+
+.state__icon svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.state--error .state__icon {
+  background: var(--color-danger-surface);
+  color: var(--color-danger);
+}
+
+.state__title {
+  font-size: clamp(1.25rem, 1.1rem + 0.8vw, 1.625rem);
+  font-weight: 700;
+}
+
+.state__message {
+  max-width: 42ch;
+  color: var(--text-secondary);
+}
+
+.state--error .state__message {
+  color: var(--text-secondary);
+}
+
+/* Skeleton loading ----------------------------------------------------- */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-color) 25%,
+    var(--surface-color-raised) 37%,
+    var(--surface-color) 63%
+  );
+  background-size: 400% 100%;
+  animation: skeleton-sweep 1.4s ease-in-out infinite;
+  border-radius: var(--border-radius-xs);
+}
+
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--card-background);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+}
+
+.skeleton-card__media {
+  aspect-ratio: 4 / 3;
+}
+
+.skeleton-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.skeleton-card__line {
+  height: 0.875rem;
+}
+
+.skeleton-card__line--title {
+  width: 70%;
+  height: 1.125rem;
+}
+
+.skeleton-card__line--short {
+  width: 45%;
+}
+
+/* Inline spinner ------------------------------------------------------ */
+.spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 3px solid var(--border-color-strong);
+  border-top-color: var(--accent-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.spinner--sm {
+  width: 1.125rem;
+  height: 1.125rem;
+  border-width: 2px;
+}
+
+/* Toolbar above a results grid (count + filter select) ---------------- */
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  padding: var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: rgba(30, 41, 59, 0.45);
+}
+
+@media (min-width: 768px) {
+  .toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-5);
+  }
+}
+
+.toolbar__meta {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.toolbar__meta strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.toolbar__controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .toolbar__controls {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.toolbar__select {
+  min-width: 12rem;
+}
+
+/* Breadcrumbs --------------------------------------------------------- */
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.breadcrumbs a {
+  color: var(--text-secondary);
+  border-radius: var(--border-radius-xs);
+  transition: color var(--transition-fast);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .breadcrumbs a:hover {
+    color: var(--accent-soft);
+  }
+}
+
+.breadcrumbs__separator {
+  color: var(--text-muted);
+}
+
+/* Error boundary ------------------------------------------------------ */
+.error-boundary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  min-height: 60dvh;
+  padding: var(--space-10) var(--space-5);
+  text-align: center;
+}
+
+.error-boundary__title {
+  font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);
+}
+
+.error-boundary__message {
+  max-width: 44ch;
+  color: var(--text-secondary);
+}
+
+.error-boundary__details {
+  max-width: 42rem;
+  padding: var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--surface-color);
+  color: var(--text-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  text-align: left;
+  overflow-x: auto;
+}
+
+/* Animations ---------------------------------------------------------- */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes skeleton-sweep {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+/* Applied by the route transition so each page fades in on navigation. */
+.page-enter {
+  animation: slide-up var(--transition-slow) var(--ease-out-soft) both;
+}

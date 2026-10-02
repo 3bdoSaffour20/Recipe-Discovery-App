@@ -1,0 +1,191 @@
+/* ==========================================================================
+   Layout primitives
+   Mobile-first: every rule here describes the small screen and is widened
+   with min-width queries as space allows.
+   ========================================================================== */
+
+/* Page shell ---------------------------------------------------------- */
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.main-content {
+  flex: 1 0 auto;
+  /* The hero on small screens needs to breathe without pushing the fold
+     too far; larger screens get more generous rhythm. */
+  padding-block: var(--space-8) var(--space-16);
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    padding-block: var(--space-12) var(--space-20);
+  }
+}
+
+/* Horizontal rhythm --------------------------------------------------- */
+.container {
+  width: 100%;
+  max-width: var(--container-width);
+  margin-inline: auto;
+  padding-inline: var(--container-padding);
+}
+
+.container--narrow {
+  max-width: 58rem;
+}
+
+/* Page heading -------------------------------------------------------- */
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .page-header {
+    margin-bottom: var(--space-12);
+  }
+}
+
+.page-header__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  align-self: center;
+  padding: var(--space-1) var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-pill);
+  background: var(--surface-color);
+  color: var(--accent-soft);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.page-header__title {
+  font-size: clamp(1.875rem, 1.2rem + 3.2vw, 3.25rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.page-header__description {
+  max-width: 46ch;
+  margin-inline: auto;
+  color: var(--text-secondary);
+  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.1875rem);
+}
+
+/* Sections ------------------------------------------------------------ */
+.section + .section {
+  margin-top: var(--space-16);
+}
+
+@media (min-width: 768px) {
+  .section + .section {
+    margin-top: var(--space-20);
+  }
+}
+
+.section__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-6);
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .section__header {
+    margin-bottom: var(--space-10);
+  }
+}
+
+.section__title {
+  font-size: clamp(1.5rem, 1.2rem + 1.4vw, 2.25rem);
+  letter-spacing: -0.01em;
+}
+
+.section__subtitle {
+  max-width: 52ch;
+  margin-inline: auto;
+  color: var(--text-secondary);
+  font-size: clamp(0.9375rem, 0.9rem + 0.2vw, 1.0625rem);
+}
+
+/* Responsive grids ----------------------------------------------------
+   `min()` keeps tracks from exceeding the container on narrow screens, and
+   `auto-fill` collapses the column count as space shrinks instead of forcing
+   a fixed number of columns.
+   ------------------------------------------------------------------------ */
+.grid {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+}
+
+@media (min-width: 768px) {
+  .grid {
+    gap: var(--space-6);
+  }
+}
+
+.grid--recipes {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17.5rem), 1fr));
+}
+
+.grid--categories {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+}
+
+/* Two columns for the hero tiles on narrow screens, as designed. */
+.hero__tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+@media (min-width: 480px) {
+  .hero__tiles {
+    gap: var(--space-4);
+  }
+}
+
+@media (min-width: 640px) {
+  .hero__tiles {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero__tiles {
+    gap: var(--space-6);
+  }
+}
+
+/* Detail page: image above content on mobile, side-by-side on desktop. */
+.detail-layout {
+  display: grid;
+  gap: var(--space-8);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .detail-layout {
+    grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+    gap: var(--space-12);
+  }
+}
+
+@media (min-width: 1440px) {
+  .detail-layout {
+    grid-template-columns: minmax(0, 26rem) minmax(0, 1fr);
+  }
+}
