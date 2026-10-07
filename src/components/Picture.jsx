@@ -34,7 +34,9 @@ export function Picture({
         width={width}
         height={height}
         // `high` on the hero only: it is the Largest Contentful Paint element.
-        fetchPriority={eager ? 'high' : 'auto'}
+        // Lowercase on purpose — React 18 forwards unknown attributes verbatim
+        // and warns about the camelCase spelling.
+        fetchpriority={eager ? 'high' : 'auto'}
         loading={eager ? 'eager' : 'lazy'}
         decoding={eager ? 'sync' : 'async'}
         {...rest}

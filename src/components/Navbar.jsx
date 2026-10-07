@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, NavLink, useLocation, useSearchParams } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { logo } from '../assets/media';
 import { navItems } from '../data/navigation';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { useMediaQuery } from '../hooks/useMediaQuery';
+import { Avatar } from './Avatar';
 import { MenuIcon } from './Icons';
 import { MobileMenu } from './MobileMenu';
 import { Picture } from './Picture';
@@ -24,6 +27,23 @@ export function Navbar() {
   const location = useLocation();
   const toggleRef = useRef(null);
   const isDesktop = useMediaQuery(DESKTOP_QUERY);
+
+  const { isAuthenticated, user, profile, logout } = useAuth();
+  const toast = useToast();
+  const navigate = useNavigate();
+
+  const displayName = profile?.full_name || user?.user_metadata?.full_name || 'Recipe lover';
+  const firstName = displayName.split(' ')[0];
+
+  async function handleLogout() {
+    try {
+      await logout();
+      toast.success('You have been signed out.');
+      navigate('/');
+    } catch (caught) {
+      toast.error(caught?.message || 'You could not be signed out.');
+    }
+  }
 
   // The drawer is irrelevant once the desktop layout takes over, so closing it
   // here avoids it lingering invisibly over the page.
@@ -97,6 +117,38 @@ export function Navbar() {
 
             <div className="navbar__search">
               <SearchBar value={headerValue} />
+            </div>
+
+            {/*
+              The account cluster. Signed out it is one button; signed in it
+              shows who is in, with the avatar linking to the profile page and
+              a separate sign-out control so the two never share a target.
+            */}
+            <div className="navbar__auth">
+              {isAuthenticated ? (
+                <>
+                  <Link className="navbar__account" to="/profile" title={displayName}>
+                    <Avatar
+                      src={profile?.avatar_url}
+                      name={displayName}
+                      className="avatar--sm"
+                    />
+                    <span className="navbar__account-name">{firstName}</span>
+                  </Link>
+
+                  <button
+                    type="button"
+                    className="btn btn--ghost navbar__logout"
+                    onClick={handleLogout}
+                  >
+                    Log out
+                  </button>
+                </>
+              ) : (
+                <Link className="btn btn--primary navbar__login" to="/login">
+                  Log in
+                </Link>
+              )}
             </div>
           </div>
 

@@ -1,9 +1,12 @@
 import { useRef } from 'react';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { navItems } from '../data/navigation';
+import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { useFocusTrap } from '../hooks/useFocusTrap';
 import { useLockBodyScroll } from '../hooks/useLockBodyScroll';
 import { useOnEscape } from '../hooks/useOnEscape';
+import { Avatar } from './Avatar';
 import { CloseIcon, LogoIcon } from './Icons';
 import { SearchBar } from './SearchBar';
 
@@ -30,6 +33,21 @@ export function MobileMenu({ open, onClose, searchValue = '' }) {
 
   const panelRef = useRef(null);
   const closeRef = useRef(null);
+
+  const { isAuthenticated, user, profile, logout } = useAuth();
+  const toast = useToast();
+
+  const displayName = profile?.full_name || user?.user_metadata?.full_name || 'Recipe lover';
+
+  async function handleLogout() {
+    try {
+      await logout();
+      toast.success('You have been signed out.');
+      onClose();
+    } catch (caught) {
+      toast.error(caught?.message || 'You could not be signed out.');
+    }
+  }
 
   useFocusTrap(open, panelRef, { initialFocusRef: closeRef });
 
@@ -81,7 +99,7 @@ export function MobileMenu({ open, onClose, searchValue = '' }) {
                     to={item.to}
                     end={item.end}
                     className={({ isActive }) =>
-                      `mobile-menu__link${isActive ? 'is-active' : ''}`
+                      `mobile-menu__link${isActive ? ' is-active' : ''}`
                     }
                     onClick={onClose}
                   >
@@ -93,6 +111,29 @@ export function MobileMenu({ open, onClose, searchValue = '' }) {
             })}
           </ul>
         </nav>
+
+        <div className="mobile-menu__auth">
+          {isAuthenticated ? (
+            <>
+              <Link className="mobile-menu__account" to="/profile" onClick={onClose}>
+                <Avatar
+                  src={profile?.avatar_url}
+                  name={displayName}
+                  className="avatar--sm"
+                />
+                <span className="mobile-menu__account-name">{displayName}</span>
+              </Link>
+
+              <button type="button" className="btn btn--ghost btn--block" onClick={handleLogout}>
+                Log out
+              </button>
+            </>
+          ) : (
+            <Link className="btn btn--primary btn--block" to="/login" onClick={onClose}>
+              Log in
+            </Link>
+          )}
+        </div>
 
         <div className="mobile-menu__footer">
           <p>Recipes and images provided by TheMealDB.</p>

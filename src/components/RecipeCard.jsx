@@ -3,6 +3,7 @@ import { TagIcon } from './Icons';
 import { CountryFlag } from './CountryFlag';
 import { FavouriteButton } from './FavouriteButton';
 import { Picture } from './Picture';
+import { RecipeRatingSummary } from './RecipeRatingSummary';
 import { imageUrl } from '../utils/helpers';
 import { UNKNOWN_CUISINE_LABEL } from '../utils/countryFlags';
 
@@ -78,6 +79,10 @@ export function RecipeCard({ recipe }) {
             <span className="recipe-area-name">{area || UNKNOWN_CUISINE_LABEL}</span>
           </span>
         </div>
+
+        {/* Until the statistics arrive this renders nothing, so the card
+            never flashes a rating it is about to replace. */}
+        <RecipeRatingSummary recipeId={id} compact className="card__rating" />
       </div>
 
       <div className="card__footer">

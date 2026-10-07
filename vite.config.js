@@ -3,31 +3,19 @@ import react from '@vitejs/plugin-react';
 
 /**
  * `base` supports hosting the app in a subdirectory (GitHub Pages project
- * sites). Set BASE_PATH=/my-repo/ when building for one; the router reads the
- * same value from `import.meta.env.BASE_URL` so links stay correct.
+ * sites). The production build keeps `/Recipe-Discovery-App/`, but the dev
+ * server serves from the root so `npm run dev` opens the plain
+ * `http://localhost:5173/` — no sub-path to remember, and the Supabase OAuth
+ * callback is the short `http://localhost:5173/auth/callback`.
+ *
+ * `server.open` makes Vite launch the default browser once, when the dev
+ * server starts. It never re-opens on a hot reload, and nothing in the React
+ * code opens a window.
  */
-export default defineConfig({
-  base: process.env.BASE_PATH || '/',
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
+  base: mode === 'production' ? '/Recipe-Discovery-App/' : '/',
   server: {
-    port: 5173,
     open: true,
   },
-  build: {
-    outDir: 'dist',
-    sourcemap: false,
-    rollupOptions: {
-      output: {
-        // Split the framework out of the app bundle so editing app code does
-        // not bust the cached vendor chunks. The function form is used because
-        // naming modules directly fails for Vite's pre-bundled dependencies.
-        manualChunks(id) {
-          if (!id.includes('node_modules')) return undefined;
-          if (id.includes('react-router')) return 'router';
-          if (id.includes('react')) return 'react';
-          return 'vendor';
-        },
-      },
-    },
-  },
-});
+}));

@@ -1365,6 +1365,400 @@
   overflow-x: auto;
 }
 
+/* Account avatar ------------------------------------------------------
+   The picture when there is one, initials on the brand gradient when not.
+   Sizing modifiers come from the caller so every class is written in JSX.
+   ------------------------------------------------------------------------ */
+.avatar {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.5rem;
+  height: 2.5rem;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-pill);
+  background: var(--gradient-brand);
+  color: var(--text-on-accent);
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.avatar--sm {
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.6875rem;
+}
+
+.avatar__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar__initials {
+  line-height: 1;
+}
+
+/* Star rating ---------------------------------------------------------
+   Read-only mode stacks two copies of the same glyphs and clips the top
+   one, so a 4.7 average shows four full stars and most of a fifth.
+   ------------------------------------------------------------------------ */
+.star-rating {
+  display: inline-flex;
+  align-items: center;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.star-rating__track {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+  letter-spacing: 0.14em;
+}
+
+.star-rating__base {
+  color: rgba(148, 163, 184, 0.34);
+}
+
+.star-rating__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  overflow: hidden;
+  color: var(--color-warning);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.star-rating--interactive {
+  gap: var(--space-1);
+  letter-spacing: normal;
+}
+
+.star-rating__button {
+  display: inline-grid;
+  place-items: center;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  padding: 0;
+  border: 0;
+  border-radius: var(--border-radius-xs);
+  background: transparent;
+  color: rgba(148, 163, 184, 0.42);
+  font-size: 1.375rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.star-rating__button:hover,
+.star-rating__button.is-active {
+  color: var(--color-warning);
+}
+
+.star-rating__button.is-active {
+  transform: scale(1.08);
+}
+
+.star-rating__button:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: -2px;
+}
+
+/* Rating summary ------------------------------------------------------- */
+.rating-summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.rating-summary__score {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.rating-summary__scale {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.rating-summary__count {
+  color: var(--text-muted);
+}
+
+.rating-summary--empty .rating-summary__count {
+  font-style: italic;
+}
+
+.card__rating {
+  margin-top: var(--space-1);
+}
+
+/* Auth gate dialog ------------------------------------------------------ */
+.modal__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: var(--overlay-color);
+  backdrop-filter: blur(4px);
+  animation: fade-in var(--transition-base) both;
+}
+
+.modal {
+  position: fixed;
+  z-index: 61;
+  top: 50%;
+  left: 50%;
+  width: min(27rem, calc(100vw - 2rem));
+  padding: var(--space-6);
+  border: 1px solid var(--border-color-strong);
+  border-radius: var(--border-radius);
+  background: var(--card-background);
+  box-shadow: var(--box-shadow-lg);
+  transform: translate(-50%, -50%);
+  animation: slide-up var(--transition-base) var(--ease-out-soft) both;
+}
+
+.modal__close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: inline-grid;
+  place-items: center;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  padding: 0;
+  border: 0;
+  border-radius: var(--border-radius-pill);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.modal__close:hover {
+  background: rgba(148, 163, 184, 0.14);
+  color: var(--text-primary);
+}
+
+.modal__close-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.modal__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: var(--space-4);
+  border-radius: var(--border-radius-pill);
+  background: rgba(168, 85, 247, 0.16);
+  color: var(--accent-soft);
+}
+
+.modal__title {
+  margin-bottom: var(--space-3);
+  font-size: 1.25rem;
+  line-height: var(--line-height-snug);
+}
+
+.modal__text {
+  margin-bottom: var(--space-6);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+@media (min-width: 480px) {
+  .modal__actions {
+    flex-direction: row;
+  }
+
+  .modal__actions .btn {
+    flex: 1;
+  }
+}
+
+/* Toasts ----------------------------------------------------------------
+   Announced politely through the region's `role="status"`; each message
+   stacks and dismisses itself.
+   ------------------------------------------------------------------------ */
+.toast-region {
+  position: fixed;
+  z-index: 80;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: min(24rem, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+  border: 1px solid var(--border-color-strong);
+  border-left-width: 4px;
+  border-radius: var(--border-radius-sm);
+  background: var(--surface-color-raised);
+  box-shadow: var(--box-shadow-md);
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  pointer-events: auto;
+  animation: slide-up var(--transition-base) var(--ease-out-soft) both;
+}
+
+.toast--success {
+  border-left-color: var(--color-success);
+}
+
+.toast--error {
+  border-left-color: var(--color-danger);
+}
+
+.toast--info {
+  border-left-color: var(--primary-color-soft);
+}
+
+.toast__message {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast__close {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2rem;
+  min-height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--border-radius-pill);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.toast__close:hover {
+  color: var(--text-primary);
+}
+
+/* Header account cluster ------------------------------------------------ */
+.navbar__auth {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.navbar__account {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch-target);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--border-radius-pill);
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.navbar__account:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.navbar__account-name {
+  max-width: 7rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navbar__login {
+  padding-inline: var(--space-5);
+}
+
+.navbar__logout {
+  min-height: 2.5rem;
+  padding-inline: var(--space-4);
+  font-size: 0.875rem;
+}
+
+/* Drawer account section ------------------------------------------------ */
+.mobile-menu__auth {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.mobile-menu__account {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--border-radius-sm);
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.mobile-menu__account-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Shared form + gate helpers -------------------------------------------- */
+.btn--danger {
+  background: var(--color-danger);
+  color: #1a0a0a;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn--danger:hover {
+    background: #ef4444;
+  }
+}
+
+.btn--block {
+  width: 100%;
+}
+
+/* Makes the wrapper transparent to layout: the gated control keeps its own
+   box, and the click still travels through the capture handler. */
+.guard {
+  display: contents;
+}
+
+.form-error {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(248, 113, 113, 0.38);
+  border-radius: var(--border-radius-sm);
+  background: var(--color-danger-surface);
+  color: var(--color-danger);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
 /* Animations ---------------------------------------------------------- */
 @keyframes fade-in {
   from {

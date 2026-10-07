@@ -1,0 +1,335 @@
+/* ==========================================================================
+   Accounts
+   Sign-in, registration, password recovery and the profile page.
+   ========================================================================== */
+
+.auth {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-6) 0 var(--space-12);
+}
+
+.auth__card {
+  width: min(30rem, 100%);
+  padding: var(--space-5);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--card-background);
+  box-shadow: var(--box-shadow-md);
+}
+
+@media (min-width: 640px) {
+  .auth__card {
+    padding: var(--space-10);
+  }
+}
+
+.auth__header {
+  margin-bottom: var(--space-6);
+}
+
+.auth__eyebrow {
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--accent-soft);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.auth__title {
+  margin-bottom: var(--space-2);
+  font-size: clamp(1.5rem, 5vw, 2rem);
+}
+
+.auth__subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.auth__notice {
+  margin-bottom: var(--space-5);
+  padding: var(--space-4);
+  border: 1px dashed var(--border-color-strong);
+  border-radius: var(--border-radius-sm);
+  background: var(--surface-color-raised);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.auth__code {
+  padding: 0 0.35em;
+  border-radius: 4px;
+  background: rgba(2, 6, 23, 0.55);
+  color: var(--accent-soft);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8125em;
+}
+
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.field__hint {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.auth__link-button {
+  align-self: flex-start;
+  min-height: auto;
+  padding: 0;
+  color: var(--accent-soft);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.auth__link-button:hover {
+  text-decoration: underline;
+}
+
+.auth__divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin: var(--space-6) 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.auth__divider::before,
+.auth__divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-color);
+}
+
+.auth__providers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* OAuth buttons -----------------------------------------------------------
+   Three equal columns: brand mark on the left, label centred in the middle,
+   an empty column on the right so the label stays optically centred no
+   matter how long the wording is. Full width and a steady 50px tall on
+   every screen — the px values are deliberate, because the fluid root font
+   size would otherwise push a rem-based button past 52px on a large
+   desktop. 50px clears the 44px touch target on phones and stays inside
+   the 48–52px band everywhere.
+   ------------------------------------------------------------------------ */
+.oauth-btn {
+  display: grid;
+  grid-template-columns: 24px 1fr 24px;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 50px;
+  padding-block: 12px;
+  padding-inline: var(--space-4);
+}
+
+.oauth-btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.oauth-btn__label {
+  min-width: 0;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Facebook's mark is monochrome by default; give it the brand blue. */
+.oauth-btn--facebook .oauth-btn__icon {
+  color: #1877f2;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .oauth-btn--facebook:hover .oauth-btn__icon {
+    color: #1565d8;
+  }
+}
+
+.auth__switch {
+  margin-top: var(--space-6);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  text-align: center;
+}
+
+.auth__link {
+  color: var(--accent-soft);
+  font-weight: 600;
+}
+
+.auth__link:hover {
+  text-decoration: underline;
+}
+
+/* Profile --------------------------------------------------------------- */
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--card-background);
+}
+
+@media (min-width: 640px) {
+  .profile-card {
+    flex-direction: row;
+    align-items: center;
+    padding: var(--space-6);
+  }
+}
+
+.profile-card__avatar {
+  width: 4.5rem;
+  height: 4.5rem;
+  font-size: 1.5rem;
+}
+
+.profile-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-card__name {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.profile-card__email {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  overflow-wrap: anywhere;
+}
+
+.profile-card__meta {
+  margin-top: var(--space-1);
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.profile-card__actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.profile__section {
+  margin-top: var(--space-8);
+}
+
+.profile__section-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.profile__section-title {
+  font-size: 1.25rem;
+}
+
+.profile__section-count {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+.profile__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-6);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--border-radius-sm);
+  text-align: center;
+}
+
+.profile__empty-title {
+  font-weight: 700;
+}
+
+.profile__empty-text {
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+}
+
+.profile-review-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.profile-review {
+  padding: var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--surface-color);
+}
+
+.profile-review__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.profile-review__date {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.profile-review__comment {
+  margin-bottom: var(--space-3);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  line-height: var(--line-height-base);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.profile-review__comment--muted {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.profile-review__link {
+  color: var(--accent-soft);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.profile-review__link:hover {
+  text-decoration: underline;
+}

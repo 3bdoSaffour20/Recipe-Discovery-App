@@ -1,0 +1,270 @@
+/* ==========================================================================
+   Ratings and comments
+   The section under a recipe: statistics, the rating control and the
+   comment thread.
+   ========================================================================== */
+
+.reviews {
+  margin-top: var(--space-10);
+  padding: var(--space-5);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background: var(--surface-color);
+}
+
+@media (min-width: 768px) {
+  .reviews {
+    padding: var(--space-8);
+  }
+}
+
+.reviews__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.reviews__title {
+  font-size: 1.375rem;
+}
+
+.reviews__hint {
+  margin-top: var(--space-4);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.reviews__notice {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  border: 1px dashed var(--border-color-strong);
+  border-radius: var(--border-radius-sm);
+  background: var(--surface-color-raised);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.reviews__code {
+  padding: 0 0.35em;
+  border-radius: 4px;
+  background: rgba(2, 6, 23, 0.55);
+  color: var(--accent-soft);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8125em;
+}
+
+.reviews__panel {
+  margin-top: var(--space-6);
+}
+
+.reviews__subtitle {
+  margin-bottom: var(--space-3);
+  font-size: 1rem;
+}
+
+.reviews__your-rating {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.reviews__your-stars {
+  display: inline-flex;
+}
+
+.reviews__rate-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-5);
+}
+
+.reviews__gate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px dashed var(--border-color-strong);
+  border-radius: var(--border-radius-sm);
+  background: var(--surface-color-raised);
+}
+
+.reviews__gate-text {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+.reviews__empty {
+  margin-top: var(--space-5);
+  padding: var(--space-8) var(--space-6);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--border-radius-sm);
+  text-align: center;
+}
+
+.reviews__empty-title {
+  margin-bottom: var(--space-1);
+  font-weight: 700;
+}
+
+.reviews__empty-text {
+  color: var(--text-muted);
+  font-size: 0.9375rem;
+}
+
+/* Comment form ---------------------------------------------------------- */
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--surface-color-raised);
+}
+
+.comment-form__label {
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.comment-form__textarea {
+  min-height: 6.5rem;
+  resize: vertical;
+  line-height: var(--line-height-base);
+}
+
+.comment-form__rating {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.comment-form__footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.comment-form__count {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.comment-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+/* Comment thread -------------------------------------------------------- */
+.comment-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.comment {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  background: var(--surface-color-raised);
+}
+
+.comment__avatar {
+  margin-top: var(--space-1);
+}
+
+.comment__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.comment__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.comment__author {
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.comment__date {
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+}
+
+.comment__rating {
+  display: inline-flex;
+  margin-bottom: var(--space-2);
+}
+
+.comment__text {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  line-height: var(--line-height-base);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.comment__actions {
+  display: flex;
+  gap: var(--space-4);
+  margin-top: var(--space-3);
+}
+
+.comment__action {
+  min-height: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent-soft);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.comment__action:hover {
+  text-decoration: underline;
+}
+
+.comment__action--danger {
+  color: var(--color-danger);
+}
+
+.comment__confirm {
+  margin-top: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid rgba(248, 113, 113, 0.38);
+  border-radius: var(--border-radius-sm);
+  background: var(--color-danger-surface);
+}
+
+.comment__confirm-text {
+  margin-bottom: var(--space-3);
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.comment__confirm .comment__actions {
+  margin-top: 0;
+}

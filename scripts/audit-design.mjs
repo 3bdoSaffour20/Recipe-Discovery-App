@@ -8,7 +8,7 @@
  *
  * Usage:  npm run audit:design
  */
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import puppeteer from 'puppeteer-core';
 
 const CHROME_PATHS = [
@@ -18,7 +18,33 @@ const CHROME_PATHS = [
 ];
 
 const executablePath = CHROME_PATHS.find((candidate) => existsSync(candidate));
-const BASE_URL = process.env.BASE_URL ?? 'http://localhost:4173';
+/**
+ * Vite's production `base`: `vite preview` serves the app under that sub-path,
+ * so the bare origin 404s. The config writes the base as a conditional, so the
+ * first quoted sub-path wins.
+ */
+const VITE_BASE = (() => {
+  try {
+    const source = readFileSync('vite.config.js', 'utf8');
+    return source.match(/base:.*?['"](\/[^'"]*)['"]/)?.[1] ?? '/';
+  } catch {
+    return '/';
+  }
+})();
+
+const BASE_URL =
+  process.env.BASE_URL ?? `http://localhost:4173${VITE_BASE.replace(/\/$/, '')}`;
+
+/**
+ * Turns an `href` such as `/Recipe-Discovery-App/recipes` back into the route
+ * the app was asked to render, `/recipes`, so assertions can compare routes.
+ */
+function routeOf(href) {
+  const base = VITE_BASE.replace(/\/$/, '');
+  if (!base || !href) return href;
+  if (href === base) return '/';
+  return href.startsWith(`${base}/`) ? href.slice(base.length) : href;
+}
 
 let passed = 0;
 let failed = 0;
@@ -215,9 +241,10 @@ async function main() {
     const hrefs = await page.$$eval('.action-row a', (nodes) =>
       nodes.map((node) => node.getAttribute('href')),
     );
-    assert(hrefs.includes('/recipes'), 'missing /recipes');
-    assert(hrefs.includes('/categories'), 'missing /categories');
-    assert(hrefs.includes('/about'), 'missing /about');
+    const routes = hrefs.map((href) => routeOf(href));
+    assert(routes.includes('/recipes'), `missing /recipes in ${JSON.stringify(routes)}`);
+    assert(routes.includes('/categories'), 'missing /categories');
+    assert(routes.includes('/about'), 'missing /about');
   });
 
   console.log('\nResponsive behaviour');

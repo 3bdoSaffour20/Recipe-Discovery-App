@@ -15,7 +15,7 @@
  */
 import assert from 'node:assert/strict';
 import path from 'node:path';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import puppeteer from 'puppeteer-core';
 
 const CHROME_PATHS = [
@@ -32,8 +32,51 @@ if (!executablePath) {
   process.exit(1);
 }
 
+/**
+ * Vite's production `base`, read from the config so the harness talks to
+ * `vite preview` where it actually serves: with `base: '/Recipe-Discovery-App/'`
+ * the root origin 404s and everything is published under that sub-path. The
+ * config writes the base as a conditional, so the first quoted sub-path wins.
+ */
+const VITE_BASE = (() => {
+  try {
+    const source = readFileSync('vite.config.js', 'utf8');
+    return source.match(/base:.*?['"](\/[^'"]*)['"]/)?.[1] ?? '/';
+  } catch {
+    return '/';
+  }
+})();
+
 /** Serves `dist/` over HTTP, because the router needs real navigable URLs. */
-const BASE_URL = process.env.BASE_URL ?? 'http://localhost:4173';
+const BASE_URL =
+  process.env.BASE_URL ?? `http://localhost:4173${VITE_BASE.replace(/\/$/, '')}`;
+
+/**
+ * Vite's `base`, e.g. `/Recipe-Discovery-App`.
+ *
+ * The built app is deployed into a sub-directory, so every in-page URL is
+ * `<base>/search`, not `/search`. Assertions must compare the route the way
+ * it is written in `src/App.jsx`, with the sub-path removed.
+ */
+const BASE_PATH = new URL(BASE_URL).pathname.replace(/\/$/, '');
+
+/**
+ * Waits until the route path satisfies `predicate`, a small expression over
+ * `path` (for example `path === '/search'` or `path.startsWith('/recipe/')`).
+ */
+async function waitForRoute(page, predicate, timeout = 10000) {
+  await page.waitForFunction(
+    (base, source) => {
+      const raw = window.location.pathname;
+      const path = base && raw.startsWith(base) ? raw.slice(base.length) || '/' : raw;
+      // `source` is harness code, never user input.
+      return new Function('path', `return ${source};`)(path);
+    },
+    { timeout },
+    BASE_PATH,
+    predicate,
+  );
+}
 
 let passed = 0;
 let failed = 0;
@@ -69,6 +112,11 @@ const ROUTES = [
   { path: '/search?query=zzzznotarealmeal', expect: 'No recipes found.' },
   { path: '/about', expect: 'About Recipe Discovery' },
   { path: '/favorites', expect: 'Your Favourites' },
+  { path: '/login', expect: 'Sign in' },
+  { path: '/register', expect: 'Create your account' },
+  { path: '/reset-password', expect: 'This link has expired' },
+  // Signed out this must land on the sign-in form, not a blank frame.
+  { path: '/profile', expect: 'Sign in' },
   { path: '/nope-not-a-route', expect: '404' },
 ];
 
@@ -201,7 +249,7 @@ async function main() {
   console.log('\nNo horizontal overflow');
 
   for (const viewport of VIEWPORTS) {
-    for (const route of ['/', '/recipes', '/categories', '/about', '/search?query=pasta']) {
+    for (const route of ['/', '/recipes', '/categories', '/about', '/login', '/register', '/search?query=pasta']) {
       await check(`${viewport.name} ${route}`, async () => {
         await page.setViewport({
           width: viewport.width,
@@ -344,10 +392,14 @@ async function main() {
 
     await page.evaluate(() => {
       const links = [...document.querySelectorAll('.mobile-menu__link')];
-      links.find((link) => link.getAttribute('href') === '/categories').click();
+      const target = links.find((link) =>
+        (link.getAttribute('href') || '').endsWith('/categories'),
+      );
+      if (!target) throw new Error('the drawer should contain a link to /categories');
+      target.click();
     });
 
-    await page.waitForFunction(() => window.location.pathname === '/categories', { timeout: 5000 });
+    await waitForRoute(page, "path === '/categories'", 5000);
     await page.waitForFunction(() => !document.querySelector('.mobile-menu'), { timeout: 5000 });
   });
 
@@ -366,7 +418,7 @@ async function main() {
     await page.type('.mobile-menu .search-form__input', 'pasta');
     await page.keyboard.press('Enter');
 
-    await page.waitForFunction(() => window.location.pathname === '/search', { timeout: 5000 });
+    await waitForRoute(page, "path === '/search'", 5000);
     await page.waitForFunction(() => window.location.search.includes('pasta'), { timeout: 5000 });
     await page.waitForFunction(() => !document.querySelector('.mobile-menu'), {
       timeout: 5000,
@@ -434,7 +486,7 @@ async function main() {
     await page.type('.navbar__search input[type="search"]', 'Arrabiata');
     await page.keyboard.press('Enter');
 
-    await page.waitForFunction(() => window.location.pathname === '/search', { timeout: 5000 });
+    await waitForRoute(page, "path === '/search'");
     await page.waitForFunction(
       () => (document.getElementById('root')?.innerText ?? '').includes('Search Results for'),
       { timeout: 15000 },
@@ -455,7 +507,7 @@ async function main() {
     await page.waitForSelector('.card__title a', { timeout: 20000 });
     await page.click('.card__title a');
 
-    await page.waitForFunction(() => window.location.pathname.startsWith('/recipe/'), {
+    await page.waitForFunction(() => window.location.pathname.includes('/recipe/'), {
       timeout: 10000,
     });
     await page.waitForFunction(
@@ -477,10 +529,7 @@ async function main() {
     });
     await waitForContent(page);
 
-    await page.waitForFunction(
-      () => /^\/recipe\/\d+$/.test(window.location.pathname),
-      { timeout: 25000 },
-    );
+    await waitForRoute(page, '/\\/recipe\\/\\d+$/.test(path)', 25000);
 
     const text = await page.evaluate(() => document.getElementById('root').innerText);
     assert.ok(text.includes('Ingredients'), 'expected the resolved recipe to render');
@@ -516,7 +565,7 @@ async function main() {
   console.log('\nAccessibility spot checks');
 
   await check('every page has exactly one h1 and a landmark structure', async () => {
-    for (const route of ['/', '/recipes', '/categories', '/about']) {
+    for (const route of ['/', '/recipes', '/categories', '/about', '/login', '/register']) {
       await gotoRobust(page, `${BASE_URL}${route}`, { waitUntil: 'networkidle2', timeout: 45000 });
       await waitForContent(page);
 

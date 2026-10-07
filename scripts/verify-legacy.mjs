@@ -3,13 +3,13 @@
  *
  * Two different things are checked, because they mean different things:
  *
- *   - every tracked file is either still at the repository root or present in
- *     `legacy/` — this catches a file that was deleted instead of moved, which
- *     happened to a binary `.ico` when the tree was reorganised;
+ *   - every file that was tracked *before* the move must still exist, byte for
+ *     byte, inside `legacy/` — this catches a file that was deleted instead of
+ *     moved, which happened to a binary `.ico` when the tree was reorganised;
  *   - files that were already modified in the worktree before the move are
- *     expected to differ from the last commit, because the move preserved the
- *     uncommitted work rather than reverting it. Those are reported, not
- *     failed, and are only checked for being non-empty and syntactically valid.
+ *     expected to differ from the pre-move commit, because the move preserved
+ *     the uncommitted work rather than reverting it. Those are reported, not
+ *     failed, and are only checked for being non-empty.
  *
  * Usage:  node scripts/verify-legacy.mjs
  */
@@ -20,8 +20,16 @@ import path from 'node:path';
 
 const LEGACY = 'legacy';
 
-/** Paths tracked in the commit before the legacy move. */
-const tracked = execFileSync('git', ['ls-tree', '-r', '--name-only', 'HEAD'], {
+/**
+ * Paths tracked in the commit before the legacy move.
+ *
+ * This has to be the *parent* of the move commit: reading `HEAD` directly
+ * would list the already-moved `legacy/...` paths and check them against
+ * `legacy/legacy/...`, which never exists.
+ */
+const BEFORE_MOVE = 'HEAD~1';
+
+const tracked = execFileSync('git', ['ls-tree', '-r', '--name-only', BEFORE_MOVE], {
   encoding: 'utf8',
 })
   .split('\n')
@@ -65,7 +73,9 @@ for (const file of moved) {
 
   // Hash the working-tree copy and the committed blob, then compare.
   const working = execFileSync('git', ['hash-object', target], { encoding: 'utf8' }).trim();
-  const committed = execFileSync('git', ['rev-parse', `HEAD:${file}`], { encoding: 'utf8' }).trim();
+    const committed = execFileSync('git', ['rev-parse', `${BEFORE_MOVE}:${file}`], {
+      encoding: 'utf8',
+    }).trim();
 
   if (working === committed) {
     identical += 1;
@@ -90,10 +100,9 @@ if (preservedEdits.length) {
 }
 
 if (problems.length === 0) {
-  console.log(
-    `\n  PASS  all ${moved.length} files are accounted for ` +
-      `(${identical} byte-identical, ${edited} with pre-existing edits, ${stayed.size} left in place)\n`,
-  );
+  console.log(`\n  PASS  all ${moved.length} moved files are accounted for ` +
+    `(${identical} byte-identical, ${edited} with pre-existing edits, ` +
+    `${stayed.size} left in place)\n`);
 } else {
   console.log(`  FAIL  ${problems.length} problem(s):`);
   for (const problem of problems) console.log(`        ${problem}`);

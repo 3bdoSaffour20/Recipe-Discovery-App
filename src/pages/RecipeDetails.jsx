@@ -7,6 +7,7 @@ import { FavouriteButton } from '../components/FavouriteButton';
 import { Loading } from '../components/Loading';
 import { Picture } from '../components/Picture';
 import { RandomRecipeButton } from '../components/RandomRecipeButton';
+import { RecipeReviews } from '../components/RecipeReviews';
 import {
   ArrowLeftIcon,
   BookOpenIcon,
@@ -304,6 +305,13 @@ export function RecipeDetails() {
             ) : null}
           </div>
         </div>
+
+        {/*
+          Ratings and comments live below the instructions, full width: the
+          detail column is already dense, and a section wide enough to hold a
+          comment thread reads better on its own.
+        */}
+        <RecipeReviews recipeId={recipe.id} />
       </article>
 
       <div className="cta-banner mt-8">

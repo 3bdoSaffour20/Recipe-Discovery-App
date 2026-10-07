@@ -4,6 +4,9 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { Footer } from './components/Footer';
 import { Loading } from './components/Loading';
 import { Navbar } from './components/Navbar';
+import { AuthProvider } from './context/AuthContext';
+import { RatingsProvider } from './context/RatingsContext';
+import { ToastProvider } from './context/ToastContext';
 import { FavoritesProvider } from './hooks/useFavorites';
 import { useScrollToTop } from './hooks/useScrollToTop';
 
@@ -18,6 +21,11 @@ const SearchResults = lazy(() => import('./pages/SearchResults'));
 const About = lazy(() => import('./pages/About'));
 const Favorites = lazy(() => import('./pages/Favorites'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const Login = lazy(() => import('./pages/Login'));
+const Register = lazy(() => import('./pages/Register'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const Profile = lazy(() => import('./pages/Profile'));
+const AuthCallback = lazy(() => import('./pages/AuthCallback'));
 
 /**
  * Application shell.
@@ -38,38 +46,53 @@ export function App() {
   const routeKey = `${location.pathname}${location.search}`;
 
   return (
-    <FavoritesProvider>
-      <div className="app-shell">
-        <a className="skip-link" href="#main-content">
-          Skip to main content
-        </a>
+    // Toasts sit outermost so every layer — including the header's sign-out
+    // button — can announce without a second provider tree. Auth wraps the
+    // rating cache because a sign-in must be able to invalidate a cached
+    // "you have not reviewed this" result.
+    <ToastProvider>
+      <AuthProvider>
+        <RatingsProvider>
+          <FavoritesProvider>
+            <div className="app-shell">
+              <a className="skip-link" href="#main-content">
+                Skip to main content
+              </a>
 
-        <Navbar />
+              <Navbar />
 
-        <main className="main-content" id="main-content" tabIndex={-1}>
-          <div className="container">
-            <ErrorBoundary>
-              <Suspense fallback={<Loading label="Loading page" />}>
-                <div className="page-enter" key={routeKey}>
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/recipes" element={<Recipes />} />
-                    <Route path="/recipe/:id" element={<RecipeDetails />} />
-                    <Route path="/categories" element={<Categories />} />
-                    <Route path="/search" element={<SearchResults />} />
-                    <Route path="/favorites" element={<Favorites />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
+              <main className="main-content" id="main-content" tabIndex={-1}>
+                <div className="container">
+                  <ErrorBoundary>
+                    <Suspense fallback={<Loading label="Loading page" />}>
+                      <div className="page-enter" key={routeKey}>
+                        <Routes>
+                          <Route path="/" element={<Home />} />
+                          <Route path="/recipes" element={<Recipes />} />
+                          <Route path="/recipe/:id" element={<RecipeDetails />} />
+                          <Route path="/categories" element={<Categories />} />
+                          <Route path="/search" element={<SearchResults />} />
+                          <Route path="/favorites" element={<Favorites />} />
+                          <Route path="/about" element={<About />} />
+                          <Route path="/login" element={<Login />} />
+                          <Route path="/register" element={<Register />} />
+                          <Route path="/auth/callback" element={<AuthCallback />} />
+                          <Route path="/reset-password" element={<ResetPassword />} />
+                          <Route path="/profile" element={<Profile />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </div>
+                    </Suspense>
+                  </ErrorBoundary>
                 </div>
-              </Suspense>
-            </ErrorBoundary>
-          </div>
-        </main>
+              </main>
 
-        <Footer />
-      </div>
-    </FavoritesProvider>
+              <Footer />
+            </div>
+          </FavoritesProvider>
+        </RatingsProvider>
+      </AuthProvider>
+    </ToastProvider>
   );
 }
 
