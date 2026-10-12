@@ -1,18 +1,7 @@
 import { Link, NavLink } from 'react-router-dom';
 import { logo } from '../assets/media';
-import { quickLinks, recipeLinks, socialLinks } from '../data/navigation';
-import {
-  BookOpenIcon,
-  FacebookIcon,
-  GridIcon,
-  HomeIcon,
-  InstagramIcon,
-  LogoIcon,
-  PinterestIcon,
-  SearchIcon,
-  ShuffleIcon,
-  XIcon,
-} from './Icons';
+import { categoryLinks, quickLinks, socialLinks } from '../data/navigation';
+import { LogoIcon } from './Icons';
 import { Picture } from './Picture';
 
 /** Footer navigation column. */
@@ -73,11 +62,41 @@ export function Footer() {
             </Link>
 
             <p className="footer__about">
-              Find delicious recipes from around the world and discover your next
-              favourite meal from our curated collection.
+              Discover delicious recipes from around the world and find inspiration
+              for your next meal.
             </p>
 
-            <ul className="footer__socials">
+            <p className="footer__about text-sm">
+              <LogoIcon
+                width="16"
+                height="16"
+                style={{ display: 'inline', verticalAlign: '-2px' }}
+              />{' '}
+              Recipe data and photography provided by{' '}
+              <a
+                className="text-accent"
+                href="https://www.themealdb.com"
+                target="_blank"
+                rel="noreferrer noopener"
+              >
+                TheMealDB
+              </a>
+            </p>
+          </div>
+
+          <FooterColumn heading="Quick Links" links={quickLinks} />
+          <FooterColumn heading="Categories" links={categoryLinks} />
+
+          <div>
+            <h2 className="footer__heading">Contact &amp; Social</h2>
+            <p className="footer__about mb-4">
+              Have a recipe to share? Reach out to us.
+            </p>
+            <a className="link-button" href="mailto:contact@recipediscovery.com">
+              contact@recipediscovery.com
+            </a>
+
+            <ul className="footer__socials mt-6">
               {socialLinks.map((social) => {
                 const Icon = social.icon;
 
@@ -98,36 +117,6 @@ export function Footer() {
                 );
               })}
             </ul>
-          </div>
-
-          <FooterColumn heading="Quick Links" links={quickLinks} />
-          <FooterColumn heading="Recipe Links" links={recipeLinks} />
-
-          <div>
-            <h2 className="footer__heading">Contact Us</h2>
-            <p className="footer__about mb-4">
-              Have a recipe to share? Reach out to us.
-            </p>
-            <a className="link-button" href="mailto:contact@recipediscovery.com">
-              contact@recipediscovery.com
-            </a>
-
-            <p className="footer__about mt-6 text-sm">
-              <LogoIcon
-                width="16"
-                height="16"
-                style={{ display: 'inline', verticalAlign: '-2px' }}
-              />{' '}
-              Recipe data and photography provided by{' '}
-              <a
-                className="text-accent"
-                href="https://www.themealdb.com"
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-                TheMealDB
-              </a>
-            </p>
           </div>
         </div>
 
