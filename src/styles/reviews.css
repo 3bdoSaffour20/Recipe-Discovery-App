@@ -51,8 +51,8 @@
 .reviews__code {
   padding: 0 0.35em;
   border-radius: 4px;
-  background: rgba(2, 6, 23, 0.55);
-  color: var(--accent-soft);
+  background: var(--surface-color-raised);
+  color: var(--primary-color);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 0.8125em;
 }

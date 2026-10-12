@@ -125,11 +125,11 @@ button:disabled {
 }
 
 ::selection {
-  background: var(--accent-color);
+  background: var(--primary-color);
   color: var(--text-on-accent);
 }
 
-/* Scrollbar styling keeps the dark theme consistent in desktop browsers. */
+/* Scrollbar styling keeps the theme consistent in desktop browsers. */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--surface-color-raised) transparent;
@@ -175,7 +175,7 @@ button:disabled {
   z-index: 200;
   padding: var(--space-3) var(--space-5);
   border-radius: var(--border-radius-sm);
-  background: var(--accent-color);
+  background: var(--primary-color);
   color: var(--text-on-accent);
   font-weight: 700;
   transform: translateY(-200%);
