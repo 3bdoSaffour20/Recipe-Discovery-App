@@ -12,8 +12,8 @@ const NO_IMAGE =
   'data:image/svg+xml;charset=UTF-8,' +
   encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300">' +
-      '<rect width="400" height="300" fill="#1e293b"/>' +
-      '<text x="200" y="155" font-family="sans-serif" font-size="18" fill="#7c8ba3" ' +
+      '<rect width="400" height="300" fill="#eef1ff"/>' +
+      '<text x="200" y="155" font-family="sans-serif" font-size="18" fill="#98a2b3" ' +
       'text-anchor="middle">No image</text></svg>',
   );
 
@@ -86,7 +86,7 @@ export function RecipeCard({ recipe }) {
       </div>
 
       <div className="card__footer">
-        <Link className="btn btn--secondary" to={`/recipe/${id}`}>
+        <Link className="btn btn--primary" to={`/recipe/${id}`}>
           View Recipe
         </Link>
       </div>

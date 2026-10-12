@@ -672,8 +672,8 @@
 
 .input:focus-visible,
 .select:focus-visible {
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.28);
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 3px rgba(75, 112, 245, 0.22);
   outline: none;
 }
 
@@ -1022,8 +1022,9 @@
 .footer {
   margin-top: auto;
   padding-block: var(--space-12) var(--space-6);
-  background: var(--background-color-deep);
-  border-top: 1px solid var(--border-color);
+  background: var(--color-primary-dark);
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(226, 231, 255, 0.78);
 }
 
 .footer__grid {
@@ -1071,23 +1072,19 @@
 .footer__brand-name {
   font-size: 1.25rem;
   font-weight: 800;
-  background: var(--gradient-text);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
+  color: #ffffff;
 }
 
 .footer__about {
   max-width: 40ch;
-  color: var(--text-secondary);
+  color: rgba(226, 231, 255, 0.76);
   font-size: 0.875rem;
   line-height: 1.65;
 }
 
 .footer__heading {
   margin-bottom: var(--space-4);
-  color: var(--text-primary);
+  color: #ffffff;
   font-size: 0.9375rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -1106,14 +1103,14 @@
   gap: var(--space-3);
   /* Touch target height even though the label is small. */
   min-height: 2.75rem;
-  color: var(--text-secondary);
+  color: rgba(226, 231, 255, 0.78);
   font-size: 0.875rem;
   transition: color var(--transition-fast), gap var(--transition-fast);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .footer__link:hover {
-    color: var(--accent-soft);
+    color: var(--color-accent);
     gap: var(--space-4);
   }
 }
@@ -1122,16 +1119,17 @@
   width: 1.125rem;
   height: 1.125rem;
   flex-shrink: 0;
-  color: var(--text-muted);
+  color: rgba(226, 231, 255, 0.6);
   transition: color var(--transition-fast);
 }
 
 .footer__link:hover .footer__link-icon {
-  color: var(--accent-soft);
+  color: var(--color-accent);
 }
 
 .footer__socials {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-2);
 }
 
@@ -1141,16 +1139,16 @@
   width: var(--touch-target);
   height: var(--touch-target);
   border-radius: var(--border-radius-pill);
-  background: var(--surface-color);
-  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
   transition: background-color var(--transition-fast), color var(--transition-fast),
     transform var(--transition-fast);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .footer__social:hover {
-    background: var(--primary-color);
-    color: #fff;
+    background: var(--color-accent);
+    color: #082b36;
     transform: translateY(-3px);
   }
 }
@@ -1160,14 +1158,26 @@
   height: 1.25rem;
 }
 
+/* The generic link-button is tuned for light surfaces; the footer needs a
+   lighter accent so it stays legible on Deep Purple. */
+.footer .link-button {
+  color: #cdeffb;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .footer .link-button:hover {
+    color: var(--color-accent);
+  }
+}
+
 .footer__bottom {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   align-items: center;
   padding-top: var(--space-6);
-  border-top: 1px solid var(--border-color);
-  color: var(--text-muted);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(226, 231, 255, 0.68);
   font-size: 0.8125rem;
   text-align: center;
 }
@@ -1181,7 +1191,7 @@
 }
 
 .footer__credit a {
-  color: var(--accent-soft);
+  color: var(--color-accent);
   font-weight: 600;
 }
 
@@ -1195,7 +1205,7 @@
   padding: var(--space-12) var(--space-5);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
-  background: rgba(30, 41, 59, 0.4);
+  background: var(--surface-color-raised);
   text-align: center;
 }
 
@@ -1310,7 +1320,7 @@
   padding: var(--space-4);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
-  background: rgba(30, 41, 59, 0.45);
+  background: var(--surface-color-raised);
 }
 
 @media (min-width: 768px) {
@@ -1607,7 +1617,7 @@
   height: 3rem;
   margin-bottom: var(--space-4);
   border-radius: var(--border-radius-pill);
-  background: rgba(168, 85, 247, 0.16);
+  background: rgba(75, 112, 245, 0.14);
   color: var(--accent-soft);
 }
 
@@ -1720,7 +1730,7 @@
   padding: var(--space-1) var(--space-3);
   border-radius: var(--border-radius-pill);
   background: rgba(255, 255, 255, 0.14);
-  color: var(--text-primary);
+  color: #ffffff;
   font-size: 0.875rem;
   font-weight: 600;
 }

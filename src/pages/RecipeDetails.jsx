@@ -32,8 +32,8 @@ const NO_IMAGE =
   'data:image/svg+xml;charset=UTF-8,' +
   encodeURIComponent(
     '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="450">' +
-      '<rect width="600" height="450" fill="#1e293b"/>' +
-      '<text x="300" y="230" font-family="sans-serif" font-size="22" fill="#7c8ba3" ' +
+      '<rect width="600" height="450" fill="#eef1ff"/>' +
+      '<text x="300" y="230" font-family="sans-serif" font-size="22" fill="#98a2b3" ' +
       'text-anchor="middle">No image available</text></svg>',
   );
 
