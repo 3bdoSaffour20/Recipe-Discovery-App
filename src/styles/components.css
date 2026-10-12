@@ -522,7 +522,7 @@
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.05;
-  background: var(--gradient-text);
+  background: var(--gradient-text-hero);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -532,7 +532,7 @@
 
 .hero__text {
   max-width: 42ch;
-  color: #e2e8f0;
+  color: #e7ecff;
   font-size: clamp(1rem, 0.95rem + 0.5vw, 1.3125rem);
   line-height: 1.65;
 }
@@ -562,10 +562,10 @@
   gap: var(--space-2);
   min-height: var(--touch-target);
   padding: var(--space-4) var(--space-2);
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: var(--border-radius);
-  background: rgba(30, 41, 59, 0.72);
-  color: var(--text-primary);
+  background: rgba(20, 16, 48, 0.42);
+  color: #ffffff;
   font-size: 0.875rem;
   font-weight: 700;
   backdrop-filter: blur(8px);
@@ -579,7 +579,7 @@
   .hero__tile:hover {
     transform: translateY(-6px);
     border-color: var(--accent-color);
-    background: rgba(93, 92, 222, 0.32);
+    background: rgba(76, 59, 207, 0.5);
   }
 }
 
@@ -591,6 +591,28 @@
   width: clamp(2.25rem, 1.5rem + 3vw, 3.25rem);
   height: auto;
   object-fit: contain;
+}
+
+/* Search on the dark hero: a solid light field reads clearly against the
+   photograph and keeps the same focus treatment as the rest of the app. */
+.hero__search {
+  width: 100%;
+  max-width: 34rem;
+  margin-top: var(--space-2);
+}
+
+.hero__search .search-form__input {
+  background: rgba(255, 255, 255, 0.97);
+  border-color: transparent;
+  color: var(--color-text-primary);
+}
+
+.hero__search .search-form__input::placeholder {
+  color: var(--color-text-secondary);
+}
+
+.hero__search .search-form__icon {
+  color: var(--color-secondary);
 }
 
 /* Quick action row below the hero (the reference "bottom navigation"). */

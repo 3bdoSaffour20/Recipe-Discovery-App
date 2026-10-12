@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { categoryIcons, heroImage } from '../assets/media';
 import { Picture } from './Picture';
+import { SearchBar } from './SearchBar';
 
 /**
  * The four category tiles featured in the hero.
@@ -50,9 +51,11 @@ export function Hero() {
         </h1>
 
         <p className="hero__text">
-          Search hundreds of recipes from around the world and find your next
-          favorite meal
+          Explore delicious meals from around the world and find your next
+          favorite dish.
         </p>
+
+        <SearchBar className="hero__search" />
 
         <div className="hero__actions">
           <Link className="btn btn--primary btn--lg" to="/recipes">
