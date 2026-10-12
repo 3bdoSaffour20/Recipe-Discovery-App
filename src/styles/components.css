@@ -45,54 +45,77 @@
   flex-shrink: 0;
 }
 
+/* Primary: Royal Purple, brightening to Bright Blue on hover. */
 .btn--primary {
-  background: var(--primary-color);
+  background: var(--color-primary);
   color: var(--text-on-accent);
   box-shadow: var(--box-shadow-accent);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .btn--primary:hover {
-    background: var(--primary-color-strong);
-    box-shadow: 0 16px 34px -12px rgba(168, 85, 247, 0.7);
+    background: var(--color-secondary);
+    box-shadow: 0 16px 34px -14px rgba(75, 112, 245, 0.6);
   }
 }
 
+/* Accent: Sky Cyan with dark ink so the label stays legible. */
 .btn--accent {
-  background: var(--gradient-accent);
-  color: var(--text-on-accent);
-  box-shadow: var(--box-shadow-accent);
+  background: var(--color-accent);
+  color: #082b36;
+  box-shadow: 0 12px 26px -14px rgba(61, 194, 236, 0.6);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .btn--accent:hover {
-    box-shadow: 0 16px 34px -12px rgba(93, 92, 222, 0.75);
+    background: var(--accent-color-strong);
+    color: #04191f;
+    box-shadow: 0 16px 34px -14px rgba(47, 168, 206, 0.65);
   }
 }
 
+/* Secondary: Bright Blue, deepening to Royal Purple on hover. */
 .btn--secondary {
-  background: var(--surface-color-raised);
-  border-color: var(--border-color-strong);
-  color: var(--text-primary);
+  background: var(--color-secondary);
+  color: var(--text-on-accent);
+  box-shadow: 0 12px 26px -16px rgba(75, 112, 245, 0.55);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .btn--secondary:hover {
-    background: var(--card-background-hover);
-    border-color: var(--accent-color);
+    background: var(--color-primary);
+    box-shadow: 0 16px 34px -16px rgba(76, 59, 207, 0.6);
   }
 }
 
+/* Outline: transparent with a purple edge that fills on hover. */
 .btn--ghost {
   background: transparent;
-  color: var(--text-secondary);
-  box-shadow: inset 0 0 0 1px var(--border-color);
+  color: var(--color-primary);
+  box-shadow: inset 0 0 0 1px rgba(76, 59, 207, 0.45);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .btn--ghost:hover {
-    color: var(--text-primary);
-    box-shadow: inset 0 0 0 1px var(--border-color-strong);
+    background: var(--color-primary);
+    color: var(--text-on-accent);
+    box-shadow: inset 0 0 0 1px var(--color-primary);
+  }
+}
+
+/* On the dark, brand-coloured surfaces the outline flips to white. */
+.navbar .btn--ghost,
+.hero .btn--ghost {
+  color: #ffffff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .navbar .btn--ghost:hover,
+  .hero .btn--ghost:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7);
   }
 }
 
