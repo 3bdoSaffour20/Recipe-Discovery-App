@@ -94,10 +94,10 @@ async function main() {
   await check('header uses the purple/blue gradient', async () => {
     const image = await style(page, '.navbar', 'backgroundImage');
     assert(
-      image.includes('gradient') && image.includes('102, 126, 234'),
+      image.includes('gradient') && image.includes('64, 46, 122'),
       `expected the brand gradient, got ${image}`,
     );
-    return 'linear-gradient(135deg, #667eea, #764ba2)';
+    return 'linear-gradient(120deg, #402E7A, #4C3BCF, #4B70F5, #3DC2EC)';
   });
 
   await check('title is "Recipe Discovery"', async () => {
@@ -151,7 +151,7 @@ async function main() {
   await check('supporting text matches the brief', async () => {
     const text = await page.$eval('.hero__text', (el) => el.textContent.replace(/\s+/g, ' ').trim());
     assert(
-      text === 'Search hundreds of recipes from around the world and find your next favorite meal',
+      text === 'Explore delicious meals from around the world and find your next favorite dish.',
       `got "${text}"`,
     );
   });
