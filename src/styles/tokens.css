@@ -3,51 +3,83 @@
    Single source of truth for colour, spacing, radius, elevation and motion.
    Components reference these instead of hard-coding values so the palette can
    be retuned in one place.
+
+   Palette (Color Hunt — https://colorhunt.co/palette/402e7a4c3bcf4b70f53dc2ec)
+     Deep Purple  #402E7A  primary dark, navbar, footer, dark sections
+     Royal Purple #4C3BCF  primary buttons, active navigation, headings
+     Bright Blue  #4B70F5  secondary buttons, links, focus, selected
+     Sky Cyan     #3DC2EC  accents, icon highlights, decorative details
+   The neutral values around them keep text readable and surfaces calm.
    ========================================================================== */
 
 :root {
-  /* Brand ----------------------------------------------------------- */
-  --primary-color: #5d5cde;
-  --primary-color-strong: #4f4ecd;
-  --primary-color-soft: #818cf8;
-  --secondary-color: #764ba2;
-  --accent-color: #a855f7;
-  --accent-color-strong: #9333ea;
-  --accent-soft: #c084fc;
+  color-scheme: light;
+
+  /* Color Hunt palette --------------------------------------------- */
+  --color-primary-dark: #402e7a;
+  --color-primary: #4c3bcf;
+  --color-secondary: #4b70f5;
+  --color-accent: #3dc2ec;
+
+  /* Neutrals -------------------------------------------------------- */
+  --color-background: #f7f8ff;
+  --color-surface: #ffffff;
+  --color-text-primary: #1d2140;
+  --color-text-secondary: #667085;
+  --color-border: #e2e6f5;
+
+  /* Brand aliases consumed across the stylesheets ------------------- */
+  --primary-color: var(--color-primary);
+  --primary-color-strong: var(--color-primary-dark);
+  --primary-color-soft: var(--color-secondary);
+  --secondary-color: var(--color-secondary);
+  --accent-color: var(--color-accent);
+  --accent-color-strong: #2fa8ce;
+  /* Readable accent text/icons sit on Royal/Bright Blue rather than cyan,
+     which is reserved for decorative highlights. */
+  --accent-soft: var(--color-secondary);
 
   /* Surfaces -------------------------------------------------------- */
-  --background-color: #0f172a;
-  --background-color-deep: #020617;
-  --surface-color: #16213c;
-  --surface-color-raised: #1e293b;
-  --card-background: #1b2540;
-  --card-background-hover: #222f52;
-  --overlay-color: rgba(2, 6, 23, 0.72);
-  --border-color: rgba(148, 163, 184, 0.16);
-  --border-color-strong: rgba(148, 163, 184, 0.3);
+  --background-color: var(--color-background);
+  --background-color-deep: #eef1ff;
+  --surface-color: var(--color-surface);
+  --surface-color-raised: #f3f5ff;
+  --card-background: var(--color-surface);
+  --card-background-hover: #f5f7ff;
+  --overlay-color: rgba(20, 16, 48, 0.55);
+  --border-color: var(--color-border);
+  --border-color-strong: #ccd3ec;
 
   /* Text ------------------------------------------------------------ */
-  --text-primary: #f8fafc;
-  --text-secondary: #a9b6cc;
-  --text-muted: #7c8ba3;
+  --text-primary: var(--color-text-primary);
+  --text-secondary: var(--color-text-secondary);
+  --text-muted: #98a2b3;
   --text-on-accent: #ffffff;
 
   /* Feedback -------------------------------------------------------- */
-  --color-success: #34d399;
-  --color-warning: #fbbf24;
-  --color-danger: #f87171;
-  --color-danger-surface: rgba(248, 113, 113, 0.12);
-  --color-success-surface: rgba(52, 211, 153, 0.12);
+  --color-success: #12b76a;
+  --color-warning: #f5a524;
+  --color-danger: #e5484d;
+  --color-danger-surface: rgba(229, 72, 77, 0.1);
+  --color-success-surface: rgba(18, 183, 106, 0.12);
 
   /* Gradients (used sparingly) -------------------------------------- */
-  --gradient-brand: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --gradient-accent: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%);
-  --gradient-text: linear-gradient(90deg, #c084fc 0%, #60a5fa 100%);
+  --gradient-brand: linear-gradient(
+    120deg,
+    #402e7a 0%,
+    #4c3bcf 45%,
+    #4b70f5 75%,
+    #3dc2ec 100%
+  );
+  --gradient-accent: linear-gradient(120deg, #4c3bcf 0%, #3dc2ec 100%);
+  --gradient-text: linear-gradient(90deg, #4c3bcf 0%, #4b70f5 55%, #3dc2ec 100%);
+  /* Light-on-image variant for the hero headline over the dark scrim. */
+  --gradient-text-hero: linear-gradient(100deg, #ffffff 0%, #dde3ff 50%, #a9e9ff 100%);
   --gradient-hero-scrim: linear-gradient(
     180deg,
-    rgba(2, 6, 23, 0.82) 0%,
-    rgba(2, 6, 23, 0.58) 45%,
-    rgba(15, 23, 42, 0.94) 100%
+    rgba(64, 46, 122, 0.86) 0%,
+    rgba(48, 36, 110, 0.62) 45%,
+    rgba(24, 20, 58, 0.92) 100%
   );
 
   /* Radii ----------------------------------------------------------- */
@@ -58,12 +90,12 @@
   --border-radius-xl: 2rem;
   --border-radius-pill: 999px;
 
-  /* Elevation ------------------------------------------------------- */
-  --box-shadow-sm: 0 1px 2px rgba(2, 6, 23, 0.4);
-  --box-shadow: 0 10px 24px -12px rgba(2, 6, 23, 0.8);
-  --box-shadow-md: 0 18px 40px -18px rgba(2, 6, 23, 0.9);
-  --box-shadow-lg: 0 32px 60px -24px rgba(2, 6, 23, 0.95);
-  --box-shadow-accent: 0 12px 28px -12px rgba(168, 85, 247, 0.55);
+  /* Elevation — soft and purple-tinted to suit the light interface. - */
+  --box-shadow-sm: 0 1px 2px rgba(29, 33, 64, 0.06);
+  --box-shadow: 0 12px 26px -16px rgba(64, 46, 122, 0.28);
+  --box-shadow-md: 0 20px 42px -22px rgba(64, 46, 122, 0.34);
+  --box-shadow-lg: 0 32px 60px -28px rgba(64, 46, 122, 0.4);
+  --box-shadow-accent: 0 12px 26px -14px rgba(76, 59, 207, 0.5);
 
   /* Spacing scale (4px base) ---------------------------------------- */
   --space-1: 0.25rem;
@@ -108,5 +140,41 @@
 @media (min-width: 1440px) {
   :root {
     --container-width: 82rem;
+  }
+}
+
+/* ==========================================================================
+   Dark appearance
+   The palette is the same; only the neutral surfaces flip so the interface
+   stays readable when the operating system asks for a dark theme. No
+   in-app theme switch is introduced — the shell has never had one.
+   ========================================================================== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --color-background: #0f1030;
+    --color-surface: #171a3a;
+    --color-text-primary: #f2f4ff;
+    --color-text-secondary: #b4bcdd;
+    --color-border: #2a2f55;
+
+    --background-color-deep: #0b0c24;
+    --surface-color-raised: #1e2247;
+    --card-background: #1b1f44;
+    --card-background-hover: #232858;
+    --overlay-color: rgba(5, 6, 20, 0.72);
+    --border-color: rgba(148, 163, 184, 0.2);
+    --border-color-strong: rgba(148, 163, 184, 0.36);
+    --text-muted: #8890b5;
+
+    --color-danger-surface: rgba(229, 72, 77, 0.16);
+    --color-success-surface: rgba(18, 183, 106, 0.16);
+
+    --box-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --box-shadow: 0 12px 26px -16px rgba(0, 0, 0, 0.7);
+    --box-shadow-md: 0 20px 42px -22px rgba(0, 0, 0, 0.8);
+    --box-shadow-lg: 0 32px 60px -28px rgba(0, 0, 0, 0.85);
+    --box-shadow-accent: 0 12px 28px -12px rgba(76, 59, 207, 0.6);
   }
 }
