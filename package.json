@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/package",
   "name": "recipe-discovery",
   "private": true,
   "version": "1.0.0",
