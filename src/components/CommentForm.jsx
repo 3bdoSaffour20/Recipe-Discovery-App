@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { MAX_COMMENT_LENGTH, sanitizeComment } from '../services/reviewService';
+import { describeServiceErrorForUi } from '../services/supabase';
 import { StarRating } from './StarRating';
 
 /**
@@ -70,7 +71,7 @@ export function CommentForm({
       setText('');
       setLocalRating(null);
     } catch (caught) {
-      setError(caught?.message || 'Something went wrong. Please try again.');
+      setError(describeServiceErrorForUi(caught) || 'Something went wrong. Please try again.');
     } finally {
       setSubmitting(false);
     }

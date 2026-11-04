@@ -148,6 +148,24 @@ export function AuthProvider({ children }) {
     return null;
   }, [user, loadProfile]);
 
+  // Writes the new name/photo to Supabase and mirrors the returned user and
+  // profile immediately, so the page behind the editor updates without a
+  // reload or a second fetch.
+  const updateProfile = useCallback(async (changes) => {
+    const result = await authService.updateProfile(changes);
+
+    if (result.user) {
+      setUser(result.user);
+      setSession((current) => (current ? { ...current, user: result.user } : current));
+    }
+    if (result.profile) setProfile(result.profile);
+
+    return result;
+  }, []);
+
+  const updateEmail = useCallback((email) => authService.updateEmail(email), []);
+  const updatePassword = useCallback((password) => authService.updatePassword(password), []);
+
   const value = useMemo(
     () => ({
       user,
@@ -162,6 +180,9 @@ export function AuthProvider({ children }) {
       loginWithFacebook,
       logout,
       refreshProfile,
+      updateProfile,
+      updateEmail,
+      updatePassword,
     }),
     [
       user,
@@ -174,6 +195,9 @@ export function AuthProvider({ children }) {
       loginWithFacebook,
       logout,
       refreshProfile,
+      updateProfile,
+      updateEmail,
+      updatePassword,
     ],
   );
 

@@ -22,7 +22,8 @@
     "screenshots": "node scripts/screenshot.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.117.3",
+    "@supabase/server": "^1.9.2",
+    "@supabase/supabase-js": "^2.118.0",
     "flag-icons": "^7.5.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

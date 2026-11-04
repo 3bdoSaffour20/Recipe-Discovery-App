@@ -236,7 +236,114 @@
 
 .profile-card__actions {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .profile-card__actions {
+    flex-direction: column;
+  }
+}
+
+/* The edit-profile dialog ----------------------------------------------- */
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.profile-form__error {
+  margin-bottom: var(--space-4);
+}
+
+.profile-form__avatar-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.profile-form__avatar {
+  flex-shrink: 0;
+  width: 4.5rem;
+  height: 4.5rem;
+  font-size: 1.5rem;
+}
+
+.profile-form__avatar-controls {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.profile-form__avatar-button {
+  align-self: flex-start;
+}
+
+.profile-form__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+@media (min-width: 480px) {
+  .profile-form__actions {
+    flex-direction: row;
+  }
+
+  .profile-form__actions .btn {
+    flex: 1;
+  }
+}
+
+.profile-form__actions .spinner {
+  border-color: rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+}
+
+/* Password field with a show/hide control inside the input. */
+.password-field {
+  position: relative;
+}
+
+.password-field .input {
+  padding-right: 3.25rem;
+}
+
+.password-field__toggle {
+  position: absolute;
+  top: 50%;
+  right: var(--space-1);
+  display: inline-grid;
+  place-items: center;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: var(--border-radius-pill);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.password-field__toggle:hover {
+  background: rgba(148, 163, 184, 0.14);
+  color: var(--text-primary);
+}
+
+.password-field__toggle:focus-visible {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 1px;
+}
+
+.password-field__icon {
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
 .profile__section {

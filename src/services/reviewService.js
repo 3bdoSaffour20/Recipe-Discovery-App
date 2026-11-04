@@ -1,4 +1,10 @@
-import { authError, requireSupabase, toServiceError, validationError } from './supabase';
+import {
+  SUPABASE_MESSAGES,
+  authError,
+  requireSupabase,
+  toServiceError,
+  validationError,
+} from './supabase';
 
 /**
  * Recipe review service — ratings and comments stored in Supabase.
@@ -37,20 +43,83 @@ function guard() {
 }
 
 /**
+ * Column list that is guaranteed to exist on `recipe_reviews`.
+ *
+ * Author details are fetched separately (see `fetchProfiles`): `recipe_reviews`
+ * and `profiles` both reference `auth.users` but have no foreign key between
+ * them, so PostgREST cannot embed one inside the other. Asking for
+ * `profile:profiles(...)` returns PGRST200 and fails the whole request.
+ */
+const REVIEW_COLUMNS = 'id, recipe_id, user_id, rating, comment, created_at, updated_at';
+
+/**
+ * Logs the raw PostgREST error, which is where the real cause lives — a
+ * missing constraint, an RLS policy, a bad column or a broken relationship.
+ * The friendly sentence shown in the UI is derived from this, but it hides the
+ * detail needed to fix it.
+ */
+function logDatabaseError(error, context) {
+  if (!error || typeof console === 'undefined') return;
+
+  console.error(`[reviewService] ${context}`, {
+    code: error.code ?? null,
+    message: error.message ?? null,
+    details: error.details ?? null,
+    hint: error.hint ?? null,
+    status: error.status ?? null,
+  });
+}
+
+/**
  * Awaits a Supabase builder and turns any failure — a rejected promise or a
  * returned `{error}` — into an error with a `kind` and a safe message.
  */
-async function run(builder, overrides = {}) {
+async function run(builder, overrides = {}, context = 'database request', options = {}) {
   let result;
 
   try {
     result = await builder;
   } catch (error) {
-    throw toServiceError(error, overrides);
+    logDatabaseError(error, context);
+    throw toServiceError(error, overrides, options);
   }
 
-  if (result?.error) throw toServiceError(result.error, overrides);
+  if (result?.error) {
+    logDatabaseError(result.error, context);
+    throw toServiceError(result.error, overrides, options);
+  }
   return result;
+}
+
+/** Fallback sentence for a write that fails for an unclassified reason. */
+const WRITE_FALLBACK = { fallbackMessage: SUPABASE_MESSAGES.DATABASE_WRITE_ERROR };
+
+/**
+ * Public author fields for a set of user ids, keyed by id.
+ *
+ * A failure here is deliberately non-fatal: reviews still render with a
+ * generic author instead of the whole comment thread disappearing.
+ */
+async function fetchProfiles(client, userIds) {
+  const ids = [...new Set((userIds ?? []).filter(Boolean))];
+  if (ids.length === 0) return new Map();
+
+  try {
+    const { data, error } = await client
+      .from('profiles')
+      .select('id, full_name, avatar_url')
+      .in('id', ids);
+
+    if (error) {
+      logDatabaseError(error, 'author profile lookup');
+      return new Map();
+    }
+
+    return new Map((data ?? []).map((row) => [row.id, row]));
+  } catch (error) {
+    logDatabaseError(error, 'author profile lookup');
+    return new Map();
+  }
 }
 
 /** Rounds to one decimal place, the way averages are displayed. */
@@ -175,6 +244,8 @@ export async function getRatingsForRecipes(recipeIds) {
   // that describes the real state (table / permissions / network).
   const { data: rows } = await run(
     client.from('recipe_reviews').select('recipe_id, rating').in('recipe_id', ids),
+    {},
+    'load rating totals',
   );
 
   const map = statsFromRows(rows);
@@ -186,14 +257,9 @@ export async function getRatingsForRecipes(recipeIds) {
 /* Reviews                                                                     */
 /* -------------------------------------------------------------------------- */
 
-/** Selects a review row together with its author's public profile fields. */
-const REVIEW_SELECT =
-  'id, recipe_id, user_id, rating, comment, created_at, updated_at, profile:profiles(full_name, avatar_url)';
-
-/** Normalises a joined row into the shape the components render. */
-function normalizeReview(row) {
+/** Normalises a review row (plus its author profile) for the components. */
+function normalizeReview(row, profile = null) {
   if (!row) return null;
-  const profile = Array.isArray(row.profile) ? row.profile[0] : row.profile;
 
   return {
     id: row.id,
@@ -222,43 +288,28 @@ export async function getRecipeReviews(recipeId, { limit = 10, offset = 0 } = {}
   const client = guard();
   const to = offset + limit - 1;
 
-  let result;
-
-  try {
-    result = await client
+  const result = await run(
+    client
       .from('recipe_reviews')
-      .select(REVIEW_SELECT, { count: 'exact' })
+      .select(REVIEW_COLUMNS, { count: 'exact' })
       .eq('recipe_id', id)
       .not('comment', 'is', null)
       .order('created_at', { ascending: false })
-      .range(offset, to);
-  } catch (error) {
-    result = { error };
-  }
+      .range(offset, to),
+    {},
+    'load comments',
+  );
 
-  if (result.error) {
-    // A missing `profiles` table would take the whole list down; retry without
-    // the join so reviews still render with a generic author. When the retry
-    // fails too, the thrown error describes the real state — table missing,
-    // permissions or network — rather than a generic "not set up".
-    try {
-      result = await client
-        .from('recipe_reviews')
-        .select('id, recipe_id, user_id, rating, comment, created_at, updated_at', {
-          count: 'exact',
-        })
-        .eq('recipe_id', id)
-        .not('comment', 'is', null)
-        .order('created_at', { ascending: false })
-        .range(offset, to);
-    } catch (error) {
-      throw toServiceError(error);
-    }
+  const rows = result.data ?? [];
+  const profiles = await fetchProfiles(
+    client,
+    rows.map((row) => row.user_id),
+  );
 
-    if (result.error) throw toServiceError(result.error);
-  }
-
-  return { reviews: (result.data ?? []).map(normalizeReview), total: result.count ?? 0 };
+  return {
+    reviews: rows.map((row) => normalizeReview(row, profiles.get(row.user_id))),
+    total: result.count ?? 0,
+  };
 }
 
 /** The signed-in user's own review for a recipe, or `null`. */
@@ -269,13 +320,17 @@ export async function getUserReview(recipeId, userId) {
   const { data } = await run(
     client
       .from('recipe_reviews')
-      .select(REVIEW_SELECT)
+      .select(REVIEW_COLUMNS)
       .eq('recipe_id', String(recipeId))
       .eq('user_id', userId)
       .maybeSingle(),
+    {},
+    'load your review',
   );
 
-  return normalizeReview(data);
+  if (!data) return null;
+  const profiles = await fetchProfiles(client, [data.user_id]);
+  return normalizeReview(data, profiles.get(data.user_id));
 }
 
 /**
@@ -349,6 +404,9 @@ export async function submitReview({ recipeId, rating, comment = null, userId })
   const client = guard();
   const now = new Date().toISOString();
 
+  // The payload uses the database's snake_case columns and the user id from the
+  // session. `rating` is a number and `comment` is a string or null, matching
+  // `numeric(2, 1)` and `text` in the migration.
   const { data } = await run(
     client
       .from('recipe_reviews')
@@ -362,7 +420,7 @@ export async function submitReview({ recipeId, rating, comment = null, userId })
         },
         { onConflict: 'recipe_id,user_id' },
       )
-      .select(REVIEW_SELECT)
+      .select(REVIEW_COLUMNS)
       .single(),
     {
       '23505': 'You have already reviewed this recipe.',
@@ -370,9 +428,12 @@ export async function submitReview({ recipeId, rating, comment = null, userId })
       '42501': 'You need to be signed in to review recipes.',
       PGRST301: 'You need to be signed in to review recipes.',
     },
+    'save review',
+    WRITE_FALLBACK,
   );
 
-  return normalizeReview(data);
+  const profiles = await fetchProfiles(client, [data?.user_id ?? userId]);
+  return normalizeReview(data, profiles.get(data?.user_id ?? userId));
 }
 
 /**
@@ -399,24 +460,33 @@ export async function updateReview({ reviewId, comment, rating }) {
   }
 
   const { data } = await run(
-    client.from('recipe_reviews').update(patch).eq('id', reviewId).select(REVIEW_SELECT).single(),
+    client.from('recipe_reviews').update(patch).eq('id', reviewId).select(REVIEW_COLUMNS).single(),
     {
       PGRST116: 'You can only edit your own comments.',
       '42501': 'You can only edit your own comments.',
     },
+    'update review',
+    WRITE_FALLBACK,
   );
 
-  return normalizeReview(data);
+  if (!data) return null;
+  const profiles = await fetchProfiles(client, [data.user_id]);
+  return normalizeReview(data, profiles.get(data.user_id));
 }
 
 /** Deletes the caller's own review. RLS blocks anyone else's rows. */
 export async function deleteReview(reviewId) {
   const client = guard();
 
-  await run(client.from('recipe_reviews').delete().eq('id', reviewId), {
-    '42501': 'You can only delete your own comments.',
-    PGRST116: 'You can only delete your own comments.',
-  });
+  await run(
+    client.from('recipe_reviews').delete().eq('id', reviewId),
+    {
+      '42501': 'You can only delete your own comments.',
+      PGRST116: 'You can only delete your own comments.',
+    },
+    'delete review',
+    WRITE_FALLBACK,
+  );
 }
 
 /**
@@ -434,13 +504,17 @@ export async function getUserReviews(userId, { limit = 50 } = {}) {
   const { data } = await run(
     client
       .from('recipe_reviews')
-      .select(REVIEW_SELECT)
+      .select(REVIEW_COLUMNS)
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(limit),
+    {},
+    'load your reviews',
   );
 
-  const reviews = (data ?? []).map(normalizeReview);
+  const rows = data ?? [];
+  const profiles = await fetchProfiles(client, [userId]);
+  const reviews = rows.map((row) => normalizeReview(row, profiles.get(row.user_id)));
   const { getMealDetails } = await import('./mealApi');
 
   await Promise.all(

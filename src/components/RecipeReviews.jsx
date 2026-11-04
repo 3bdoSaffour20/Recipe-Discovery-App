@@ -10,6 +10,7 @@ import {
   getCurrentUserReview,
   updateReview,
 } from '../services/reviewService';
+import { describeServiceErrorForUi } from '../services/supabase';
 import { CommentForm } from './CommentForm';
 import { CommentList } from './CommentList';
 import { ErrorMessage } from './ErrorMessage';
@@ -160,7 +161,9 @@ export function RecipeReviews({ recipeId }) {
       refresh();
       toast.success(isUpdate ? 'Rating updated successfully.' : 'Rating submitted successfully.');
     } catch (error) {
-      toast.error(error?.message || 'Your rating could not be saved.');
+      // In development the raw Supabase message is appended so the real cause
+      // (RLS, constraint, column) is visible; production keeps the safe text.
+      toast.error(describeServiceErrorForUi(error) || 'Your rating could not be saved.');
     } finally {
       setSubmittingRating(false);
     }

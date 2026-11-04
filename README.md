@@ -266,7 +266,33 @@ What you get:
 | `recipe_ratings`  | view with `AVG(rating)` + `COUNT(*)` per recipe, `security_invoker = on`            |
 | RLS               | public `SELECT`; `INSERT`/`UPDATE`/`DELETE` only for the signed-in owner, checked against `auth.uid()` — a `user_id` sent by the browser is never trusted |
 
-### 3. Sign-in providers
+> **Ratings or comments failing to save?** First run
+> `supabase/migrations/20261103120000_recipe_review_writes.sql` in the SQL
+> editor. It re-applies the write policies, grants, and the
+> `UNIQUE (recipe_id, user_id)` key that the app's `upsert` needs. It is
+> idempotent, so it is safe to run even when the first migration was applied
+> correctly. `recipe_ratings` is a view and deliberately receives no `INSERT`
+> policy.
+>
+> A `PGRST200` error — *"Could not find a relationship between
+> 'recipe_reviews' and 'profiles'"* — is **not** an RLS problem. Both tables
+> reference `auth.users`, but there is no foreign key between them, so
+> PostgREST cannot embed `profiles` inside a reviews query. Current code
+> fetches author profiles in a second query and keeps the review query free of
+> embeds; rebuild/restart the app if you see this after an upgrade.
+>
+> During debugging, `VITE_SUPABASE_DEBUG_ERRORS=true` appends the raw Supabase
+> message, details and hint to the UI error text. Leave it unset in production.
+
+### 3. Avatar storage
+
+Profile photo uploads need one more idempotent script: run
+`supabase/migrations/20261103090000_avatar_storage.sql` in the SQL editor as
+well. It creates the public `avatars` bucket (2 MB limit; JPG, PNG, WebP and
+GIF) and an `INSERT` policy that only lets a signed-in user create objects
+whose name starts with their own user id.
+
+### 4. Sign-in providers
 
 **Email and password** work with no extra setup. If you want sign-ups to work
 without confirming an email, turn *Authentication → Providers → Email →
@@ -306,7 +332,7 @@ origin to the provider consoles too (*Authorized JavaScript origins* /
 *Site URL*). The app carries `?from=/recipe/52772` so people land back on the
 recipe they were rating.
 
-### 4. What each state looks like
+### 5. What each state looks like
 
 The app checks the real state instead of a hard-coded flag — configuration is
 read from `import.meta.env` (`isSupabaseConfigured`), and
@@ -323,7 +349,7 @@ read from `import.meta.env` (`isSupabaseConfigured`), and
 A signed-in user with valid keys never sees a configuration message, and a
 database problem is never blamed on missing keys.
 
-### 5. The two flows
+### 6. The two flows
 
 ```text
 Authentication:  Navbar Login → /login → Google / Facebook / Email

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useToast } from '../context/ToastContext';
+import { describeServiceErrorForUi } from '../services/supabase';
 import { formatDateTime, formatRelativeTime } from '../utils/dates';
 import { Avatar } from './Avatar';
 import { CommentForm } from './CommentForm';
@@ -49,7 +50,7 @@ export function CommentList({ reviews, currentUserId, onEdit, onDelete }) {
       await onDelete(review);
       setConfirmingId(null);
     } catch (error) {
-      toast.error(error?.message || 'Your comment could not be deleted.');
+      toast.error(describeServiceErrorForUi(error) || 'Your comment could not be deleted.');
     } finally {
       setDeletingId(null);
     }

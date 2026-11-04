@@ -37,7 +37,14 @@ function normalize(value) {
     .replace(/^['"]|['"]$/g, '');
 }
 
-const SUPABASE_URL = normalize(rawUrl);
+/** Keeps the environment value at the project root; SDK endpoints append their own paths. */
+function normalizeSupabaseUrl(value) {
+  return normalize(value)
+    .replace(/\/rest\/v1\/?$/i, '')
+    .replace(/\/+$/, '');
+}
+
+const SUPABASE_URL = normalizeSupabaseUrl(rawUrl);
 const SUPABASE_ANON_KEY = normalize(rawKey);
 
 /** The values in `.env.example` — templates, not credentials. */
@@ -82,6 +89,9 @@ export const SUPABASE_MESSAGES = {
     'supabase/migrations in the Supabase SQL Editor.',
   DATABASE_QUERY_ERROR:
     'The review service could not read the database right now. Please try again.',
+  DATABASE_WRITE_ERROR: 'Your review could not be saved right now. Please try again.',
+  DATABASE_SCHEMA_ERROR:
+    'The review database schema is out of date. Run the SQL in supabase/migrations, then try again.',
   RLS_ERROR: 'You are connected to Supabase, but database permissions need to be configured.',
   NETWORK_ERROR: 'Unable to connect to the review service. Please try again.',
   AUTH_ERROR: 'Please sign in again to continue.',
@@ -254,11 +264,22 @@ export function createServiceError(kind, message, cause = null) {
   const error = new Error(message);
   error.kind = kind;
   error.code = kind === 'ENVIRONMENT_ERROR' ? 'supabase_not_configured' : (cause?.code ?? kind);
-  if (cause) error.cause = cause;
+
+  if (cause) {
+    error.cause = cause;
+    // The raw PostgREST fields are kept on the wrapper so the console and the
+    // temporary in-UI diagnostic can show what actually failed (RLS, a missing
+    // constraint, a bad column) rather than only the friendly sentence.
+    error.rawMessage = cause.message ?? null;
+    error.details = cause.details ?? null;
+    error.hint = cause.hint ?? null;
+    error.status = cause.status ?? null;
+  }
+
   return error;
 }
 
-function messageFor(kind, error) {
+function messageFor(kind, error, fallbackMessage = null) {
   switch (kind) {
     case 'ENVIRONMENT_ERROR':
       return NOT_CONFIGURED_MESSAGE;
@@ -273,11 +294,16 @@ function messageFor(kind, error) {
       // refines them further for the sign-in screens.
       return error?.message || SUPABASE_MESSAGES.AUTH_ERROR;
     case 'DATABASE_ERROR':
-      return isMissingTableError(error)
-        ? SUPABASE_MESSAGES.DATABASE_ERROR
-        : SUPABASE_MESSAGES.DATABASE_QUERY_ERROR;
+      // `PGRST200` means PostgREST cannot embed a requested relationship, so
+      // the deployed schema is behind the app (usually a query that embeds a
+      // table with no foreign key between the two).
+      if (error?.code === 'PGRST200') return SUPABASE_MESSAGES.DATABASE_SCHEMA_ERROR;
+      if (isMissingTableError(error)) return SUPABASE_MESSAGES.DATABASE_ERROR;
+      // Writes pass a write-specific fallback so a failed INSERT/UPDATE is
+      // never reported as "could not read the database".
+      return fallbackMessage ?? SUPABASE_MESSAGES.DATABASE_QUERY_ERROR;
     default:
-      return SUPABASE_MESSAGES.DATABASE_QUERY_ERROR;
+      return fallbackMessage ?? SUPABASE_MESSAGES.DATABASE_QUERY_ERROR;
   }
 }
 
@@ -287,19 +313,27 @@ function messageFor(kind, error) {
  * validation message written for the visitor is never replaced.
  *
  * `overrides` maps a database error code (for example `23505`) to a specific
- * sentence.
+ * sentence. `options.fallbackMessage` replaces the generic "could not read"
+ * sentence for an unclassified database error — writes use it so a failed
+ * INSERT/UPDATE says "could not be saved".
  *
  * @param {unknown} error
  * @param {Record<string, string>} [overrides]
+ * @param {{fallbackMessage?: string|null}} [options]
  * @returns {Error & {kind: string}}
  */
-export function toServiceError(error, overrides = {}) {
-  if (!error) return createServiceError('DATABASE_ERROR', SUPABASE_MESSAGES.DATABASE_QUERY_ERROR);
+export function toServiceError(error, overrides = {}, { fallbackMessage = null } = {}) {
+  if (!error) {
+    return createServiceError(
+      'DATABASE_ERROR',
+      fallbackMessage ?? SUPABASE_MESSAGES.DATABASE_QUERY_ERROR,
+    );
+  }
   if (error.kind && ERROR_KINDS.includes(error.kind)) return error;
 
   const kind = classifySupabaseError(error);
   const code = typeof error.code === 'string' ? error.code : '';
-  const message = overrides[code] ?? messageFor(kind, error);
+  const message = overrides[code] ?? messageFor(kind, error, fallbackMessage);
 
   return createServiceError(kind, message, error);
 }
@@ -307,6 +341,47 @@ export function toServiceError(error, overrides = {}) {
 /** A sentence a person can act on, for any error the services can throw. */
 export function describeServiceError(error) {
   return toServiceError(error).message;
+}
+
+/**
+ * The friendly sentence plus the raw Supabase message, details, hint and code.
+ *
+ * Intended for diagnostics only: `describeServiceErrorForUi` uses it while the
+ * app runs in development so the real cause of a failed write is visible in the
+ * toast/alert. Production keeps the safe sentence.
+ */
+export function describeServiceErrorVerbose(error) {
+  const service = toServiceError(error);
+  const cause = service.cause;
+
+  if (!cause) return service.message;
+
+  const technical = [
+    cause.message,
+    cause.details ? `Details: ${cause.details}` : null,
+    cause.hint ? `Hint: ${cause.hint}` : null,
+    cause.code ? `Code: ${cause.code}` : null,
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  return technical ? `${service.message} [${technical}]` : service.message;
+}
+
+/**
+ * True in development, or when `VITE_SUPABASE_DEBUG_ERRORS=true` is set
+ * explicitly. The flag exists so a deployed build can be diagnosed temporarily
+ * without exposing raw database messages to every visitor by default.
+ */
+const DEBUG_ERROR_DETAILS =
+  Boolean(import.meta.env.DEV) || import.meta.env.VITE_SUPABASE_DEBUG_ERRORS === 'true';
+
+/**
+ * What the UI should display: the raw Supabase detail while debugging, and only
+ * the safe sentence everywhere else.
+ */
+export function describeServiceErrorForUi(error) {
+  return DEBUG_ERROR_DETAILS ? describeServiceErrorVerbose(error) : describeServiceError(error);
 }
 
 /** Builds a validation error from a message already written for the visitor. */

@@ -1,9 +1,13 @@
 import {
   appUrl,
+  authError,
+  createServiceError,
   describeServiceError,
   isSupabaseConfigured,
   requireSupabase,
   supabase,
+  toServiceError,
+  validationError,
 } from './supabase';
 
 /**
@@ -38,6 +42,10 @@ const ERROR_MESSAGES = {
   weak_password: 'Password is too weak. Use at least 8 characters.',
   validation_failed: 'Please check the highlighted fields and try again.',
   invalid_email: 'Please enter a valid email address.',
+  email_address_invalid: 'Please enter a valid email address.',
+  email_change_not_allowed: 'This account cannot change its email address.',
+  same_password: 'Choose a password different from your current one.',
+  reauthentication_needed: 'Please sign in again before changing security settings.',
   over_email_send_rate_limit: 'Too many attempts. Wait a minute and try again.',
   too_many_requests: 'Too many attempts. Wait a minute and try again.',
   signup_disabled: 'Registration is currently disabled.',
@@ -46,6 +54,31 @@ const ERROR_MESSAGES = {
   session_not_found: 'Your session has expired. Please sign in again.',
   refresh_token_not_found: 'Your session has expired. Please sign in again.',
 };
+
+/** Public bucket that holds profile photos, created by the migrations. */
+const AVATAR_BUCKET = 'avatars';
+
+/** Images the browser can display and Storage will accept. */
+const AVATAR_TYPES = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+};
+
+/** 2 MB is generous for an avatar and keeps uploads quick on mobile. */
+const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
+
+/**
+ * Checks a chosen avatar before it costs a network round trip.
+ * @returns {string|null} a sentence for the visitor, or null when it is fine.
+ */
+export function validateAvatarFile(file) {
+  if (!file) return null;
+  if (!AVATAR_TYPES[file.type]) return 'Choose a JPG, PNG, WebP or GIF image.';
+  if (file.size > MAX_AVATAR_BYTES) return 'That image is larger than 2 MB. Choose a smaller one.';
+  return null;
+}
 
 /** Maps a raw error to a sentence safe to show in the interface. */
 export function describeAuthError(error) {
@@ -426,4 +459,144 @@ export async function updatePassword(password) {
     error.message = describeAuthError(error);
     throw error;
   }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Profile editing                                                             */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Saves a new display name and/or avatar URL.
+ *
+ * The auth metadata is the source the whole app reads, so it is written first.
+ * The `profiles` row is then updated to match; when that row cannot be written
+ * (missing, offline, RLS) the metadata update has still succeeded, so the
+ * caller can keep the visible name and photo correct either way.
+ *
+ * @param {{fullName?: string, avatarUrl?: string}} changes
+ * @returns {Promise<{user: object|null, profile: object|null}>}
+ */
+export async function updateProfile({ fullName, avatarUrl } = {}) {
+  const client = guard();
+
+  const metadata = {};
+  const row = {};
+
+  if (fullName !== undefined) {
+    const name = String(fullName ?? '').trim();
+    if (!name) throw validationError('Enter your name.');
+    if (name.length > 80) throw validationError('Your name must be 80 characters or fewer.');
+    metadata.full_name = name;
+    row.full_name = name;
+  }
+
+  if (avatarUrl !== undefined && avatarUrl !== null) {
+    metadata.avatar_url = avatarUrl;
+    row.avatar_url = avatarUrl;
+  }
+
+  if (Object.keys(metadata).length === 0) return { user: null, profile: null };
+
+  const { data, error } = await client.auth.updateUser({ data: metadata });
+  if (error) {
+    error.message = describeAuthError(error);
+    throw error;
+  }
+
+  const user = data?.user ?? null;
+  let profile = null;
+
+  if (user) {
+    try {
+      const { data: updated, error: updateError } = await client
+        .from('profiles')
+        .update({ ...row, updated_at: new Date().toISOString() })
+        .eq('id', user.id)
+        .select('id, full_name, avatar_url, provider, created_at, updated_at')
+        .maybeSingle();
+
+      if (!updateError) profile = updated ?? null;
+    } catch {
+      // The row is cosmetic; the auth metadata above is the source of truth.
+    }
+
+    // A sign-up whose trigger did not run has no row to update. Repair it now
+    // so the name and photo survive the next page load too.
+    if (!profile) profile = await ensureProfile(user);
+  }
+
+  return { user, profile };
+}
+
+/**
+ * Starts an email change.
+ *
+ * Supabase mails a confirmation link to the new address; the account keeps its
+ * current address until that link is opened. The caller must say so in the UI.
+ */
+export async function updateEmail(email) {
+  const client = guard();
+  const nextEmail = String(email ?? '').trim();
+
+  if (!nextEmail) throw validationError('Enter an email address.');
+
+  const { data, error } = await client.auth.updateUser({ email: nextEmail });
+  if (error) {
+    error.message = describeAuthError(error);
+    throw error;
+  }
+
+  return data?.user ?? null;
+}
+
+/**
+ * Uploads an avatar and returns its public URL.
+ *
+ * The object name carries the user id and a timestamp, so a replacement never
+ * collides with the previous photo and a new URL bypasses any cached image.
+ *
+ * @param {File} file
+ * @param {string} userId
+ * @returns {Promise<string>} the public URL of the uploaded image.
+ */
+export async function uploadAvatar(file, userId) {
+  if (!file) return null;
+  if (!userId) throw authError('Please sign in again to change your photo.');
+
+  const problem = validateAvatarFile(file);
+  if (problem) throw validationError(problem);
+
+  const client = guard();
+  const extension = AVATAR_TYPES[file.type];
+  const path = `${userId}-${Date.now()}.${extension}`;
+
+  const { error } = await client.storage.from(AVATAR_BUCKET).upload(path, file, {
+    cacheControl: '31536000',
+    contentType: file.type,
+    upsert: false,
+  });
+
+  if (error) {
+    if (/bucket\s+not\s+found/i.test(String(error.message ?? ''))) {
+      throw createServiceError(
+        'DATABASE_ERROR',
+        'The avatars storage bucket is not set up yet. Run the SQL in supabase/migrations to create it.',
+      );
+    }
+    throw toServiceError(error, {
+      23505: 'That photo already exists. Please choose it again.',
+    });
+  }
+
+  const { data } = client.storage.from(AVATAR_BUCKET).getPublicUrl(path);
+  const publicUrl = data?.publicUrl;
+
+  if (!publicUrl) {
+    throw createServiceError(
+      'DATABASE_ERROR',
+      'Your photo was uploaded, but its address could not be read. Please try again.',
+    );
+  }
+
+  return publicUrl;
 }

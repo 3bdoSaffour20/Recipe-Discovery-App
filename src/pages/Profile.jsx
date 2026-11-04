@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link, Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Avatar } from '../components/Avatar';
 import { ErrorMessage } from '../components/ErrorMessage';
+import { PencilIcon } from '../components/Icons';
 import { Loading } from '../components/Loading';
+import { ProfileEditModal } from '../components/ProfileEditModal';
 import { StarRating } from '../components/StarRating';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
@@ -31,6 +33,7 @@ export function Profile() {
   const [reviewsError, setReviewsError] = useState(null);
   const [reviewsToken, setReviewsToken] = useState(0);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     if (!user?.id) {
@@ -73,9 +76,12 @@ export function Profile() {
     );
   }
 
-  const displayName = profile?.full_name || user?.user_metadata?.full_name || 'Recipe lover';
+  const accountName = profile?.full_name || user?.user_metadata?.full_name || '';
+  const displayName = accountName || 'Recipe lover';
   const email = user?.email ?? '';
   const memberSince = profile?.created_at || user?.created_at;
+  const avatarUrl =
+    profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || null;
 
   async function handleLogout() {
     if (loggingOut) return;
@@ -101,7 +107,7 @@ export function Profile() {
       </header>
 
       <section className="profile-card" aria-label="Account details">
-        <Avatar src={profile?.avatar_url} name={displayName} className="profile-card__avatar" />
+        <Avatar src={avatarUrl} name={displayName} className="profile-card__avatar" />
 
         <div className="profile-card__body">
           <p className="profile-card__name">{displayName}</p>
@@ -113,6 +119,14 @@ export function Profile() {
         </div>
 
         <div className="profile-card__actions">
+          <button
+            type="button"
+            className="btn btn--primary"
+            onClick={() => setEditing(true)}
+          >
+            <PencilIcon className="btn__icon" />
+            Edit profile
+          </button>
           <button
             type="button"
             className="btn btn--secondary"
@@ -183,6 +197,14 @@ export function Profile() {
           </ul>
         )}
       </section>
+
+      <ProfileEditModal
+        open={editing}
+        onClose={() => setEditing(false)}
+        initialName={accountName}
+        initialEmail={email}
+        currentAvatarUrl={avatarUrl}
+      />
     </>
   );
 }

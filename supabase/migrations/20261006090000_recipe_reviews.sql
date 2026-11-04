@@ -50,7 +50,7 @@ create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer
-set search_path = public
+set search_path = ''
 as $$
 begin
   insert into public.profiles (id, full_name, avatar_url, provider, updated_at)
@@ -66,7 +66,7 @@ begin
       new.raw_user_meta_data ->> 'avatar_url',
       new.raw_user_meta_data ->> 'picture'
     ),
-    coalesce(new.app_metadata ->> 'provider', 'email'),
+    coalesce(new.raw_app_meta_data ->> 'provider', 'email'),
     now()
   )
   on conflict (id) do update
@@ -116,6 +116,7 @@ drop policy if exists "Reviews are readable by everyone" on public.recipe_review
 create policy "Reviews are readable by everyone"
   on public.recipe_reviews
   for select
+  to anon, authenticated
   using (true);
 
 -- Writes require a session and can only ever touch the caller's own row;
@@ -125,20 +126,23 @@ drop policy if exists "Users can insert their own review" on public.recipe_revie
 create policy "Users can insert their own review"
   on public.recipe_reviews
   for insert
-  with check (auth.uid() = user_id);
+  to authenticated
+  with check ((select auth.uid()) = user_id);
 
 drop policy if exists "Users can update their own review" on public.recipe_reviews;
 create policy "Users can update their own review"
   on public.recipe_reviews
   for update
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
+  to authenticated
+  using ((select auth.uid()) = user_id)
+  with check ((select auth.uid()) = user_id);
 
 drop policy if exists "Users can delete their own review" on public.recipe_reviews;
 create policy "Users can delete their own review"
   on public.recipe_reviews
   for delete
-  using (auth.uid() = user_id);
+  to authenticated
+  using ((select auth.uid()) = user_id);
 
 /* -------------------------------------------------------------------------- */
 /* recipe_ratings — average + count per recipe                                 */
@@ -168,3 +172,6 @@ grant insert, update, delete on public.profiles
   to authenticated;
 grant insert, update, delete on public.recipe_reviews
   to authenticated;
+
+-- Make newly created tables and the aggregate view visible to the Data API.
+notify pgrst, 'reload schema';
